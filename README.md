@@ -4,9 +4,10 @@ This is a meditation timer. Minimalistic, reliable, and truly elegant.
 
 ## Features
 - Very simple and intuitive UI
-- No distractions: only a minimalistic set of features
+- No distractions; only the fundamental features
 - Reliable volume adjustment independent of system volume
 - Reliable countdown timer
+- Free and open-source software
 
 ## About
 This project was started with the goal of making a truly minimalistic no-fuss countdown timer for meditation, with a clean UI and no clutter, reflecting the actual purpose of meditation.
