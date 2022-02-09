@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 
 import 'package:awesome_notifications/awesome_notifications.dart';
@@ -62,6 +64,10 @@ Future<void> initNotifications() async {
 }
 
 Future<void> initFlutterBackground() async {
+  if (!Platform.isAndroid) {
+    return;
+  }
+
   const androidConfig = FlutterBackgroundAndroidConfig(
     notificationTitle: "Meditation in progress",
     notificationText:
