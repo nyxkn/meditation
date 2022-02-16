@@ -160,9 +160,10 @@ class _TimerWidgetState extends State<TimerWidget> with SingleTickerProviderStat
       }
 
       // only dismiss on android
-      await Future.delayed(const Duration(seconds: 10));
-      log("timer-end", "dismissing end notification");
-      AwesomeNotifications().dismiss(endingNotificationID);
+      Timer(const Duration(seconds: 10), () {
+        log("timer-end", "dismissing end notification");
+        AwesomeNotifications().dismiss(endingNotificationID);
+      });
     }
 
     NAudioPlayer audioPlayer = GetIt.I.get<NAudioPlayer>();
@@ -374,9 +375,10 @@ class _TimerWidgetState extends State<TimerWidget> with SingleTickerProviderStat
                 Icon(
                   Icons.schedule,
                   size: 30,
-
                 ),
-                Text(' ${timerMinutes}m',)
+                Text(
+                  ' ${timerMinutes}m',
+                )
               ],
             ),
           ),
