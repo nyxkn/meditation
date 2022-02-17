@@ -47,7 +47,11 @@ android {
     defaultConfig {
         // TODO: Specify your own unique Application ID (https://developer.android.com/studio/build/application-id.html).
         applicationId "com.nyxkn.meditation"
-        minSdkVersion minSdk
+        // FIXME: a bug in flutter_launcher_icons requires min Sdk Version to be specified as a number
+        // rather than using the variable minSdk. we can't even use the word min Sdk Version in comments
+        // because it just naively looks for any line containing the string. even if it's a comment!
+        // https://github.com/fluttercommunity/flutter_launcher_icons/issues/324
+        minSdkVersion 23
         targetSdkVersion targetSdk
         versionCode flutterVersionCode.toInteger()
         versionName flutterVersionName
