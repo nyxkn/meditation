@@ -74,7 +74,7 @@ class _SettingsWidgetState extends State<SettingsWidget> {
                 CheckboxSettingsTile(
                   title: 'Keep screen on',
                   settingKey: 'screen-wakelock',
-                  subtitle: "Enable this if you're missing timer end notification.",
+                  subtitle: "Enable this to keep the screen on as you meditate",
                 ),
               ],
             ),

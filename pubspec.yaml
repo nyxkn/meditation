@@ -79,7 +79,8 @@ flutter:
 
   assets:
     - assets/
-    - android/app/src/main/res/mipmap-xxxhdpi/
+#    - android/app/src/main/res/mipmap-xxxhdpi/
+#    - android/app/src/main/res/drawable-xxxhdpi/
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware.
