@@ -71,10 +71,10 @@ Future<void> initFlutterBackground() async {
   const androidConfig = FlutterBackgroundAndroidConfig(
     notificationTitle: "Meditation in progress",
     notificationText:
-        "Background notification for keeping Meditation Timer running in the background",
+        "Foreground service notification to keep the app running",
     notificationImportance: AndroidNotificationImportance.Default,
     notificationIcon: AndroidResource(
-        name: '@mipmap/ic_launcher',
+        name: 'notification_icon',
         defType: 'drawable'), // Default is ic_launcher from folder mipmap
   );
 

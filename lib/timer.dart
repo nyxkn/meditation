@@ -175,6 +175,11 @@ class _TimerWidgetState extends State<TimerWidget> with SingleTickerProviderStat
   }
 
   void onTimerStart() async {
+    // cleaning up endingnotification in case it's still around
+    // 10s timer for dismissal at onTimerEnd will still call and presumably do nothing
+    // probably no need to fix that
+    AwesomeNotifications().dismiss(endingNotificationID);
+
     startTime = DateTime.now();
     if (timerMinutes == 0) {
       // this is the test mode
@@ -215,9 +220,9 @@ class _TimerWidgetState extends State<TimerWidget> with SingleTickerProviderStat
         channelKey: 'timer-end',
         title: 'Meditation ended',
         body: 'Tap to return to app',
-        icon: 'resource://drawable/ic_launcher_48',
-        largeIcon: 'resource://drawable/ic_launcher_48',
-        // Alarm and Event seem to both show up in dnd mode
+        icon: 'resource://drawable/notification_icon',
+        largeIcon: 'resource://mipmap/launcher_icon',
+        // Alarm and Event seem to both show up in dnd mode (this is what we want)
         // Alarm also makes the notification undismissable with swiping and requires interaction
         // which we probably don't want
         // Event instead is dismissable
