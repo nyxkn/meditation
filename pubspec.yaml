@@ -42,6 +42,7 @@ dependencies:
   shared_preferences: ^2.0.12
   volume_controller: ^2.0.3
   wakelock: ^0.6.1+1
+  package_info_plus: ^1.4.0
 
 dev_dependencies:
   flutter_test:

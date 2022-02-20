@@ -70,8 +70,7 @@ Future<void> initFlutterBackground() async {
 
   const androidConfig = FlutterBackgroundAndroidConfig(
     notificationTitle: "Meditation in progress",
-    notificationText:
-        "Foreground service notification to keep the app running",
+    notificationText: "Foreground service notification to keep the app running",
     notificationImportance: AndroidNotificationImportance.Default,
     notificationIcon: AndroidResource(
         name: 'notification_icon',
@@ -188,20 +187,6 @@ class MyApp extends StatelessWidget {
               primary: Colors.grey[300],
             ),
           ),
-
-          // typography: Typography.white,
-          // textTheme: Theme.of(context).textTheme.apply(
-          //   fontSizeFactor: 1.5,
-          // ),
-          // textTheme: Theme.of(context).textTheme.copyWith(
-          // textTheme: Typography().white.copyWith(
-          //   bodyText2: Theme.of(context).textTheme.bodyText2?.copyWith(
-          //     fontSize: 16,
-          //     letterSpacing: 0.25,
-          //     color: Colors.white,
-          //   )
-          // ),
-          // textTheme: Theme.of(context).textTheme.copyWith(
           textTheme: Typography().white.copyWith(
                 bodyText1: Typography().white.bodyText1?.copyWith(
                       // fontSizeFactor: 1.2,
@@ -216,18 +201,12 @@ class MyApp extends StatelessWidget {
                       height: 2,
                       color: Colors.white,
                     ),
-                button: Typography().white.button?.copyWith(
-                      // button: Theme.of(context).textTheme.button?.copyWith(
-                      // fontSizeFactor: 1.2,
-                      // fontWeightDelta: 2,
-                      // letterSpacingDelta: 2,
-                      fontSize: 22,
-                      fontWeight: FontWeight.w900,
-                      letterSpacing: 1.8,
-                    ),
+                // button: Typography().white.button?.copyWith(
+                //     fontSize: 22,
+                //     fontWeight: FontWeight.w900,
+                //     letterSpacing: 1.8,
+                //     ),
               )),
-      // primaryColor: Colors.blue,
-      // ),
       home: const Home(),
       // home: WithForegroundTask(
       //   child: const Home(),
@@ -235,6 +214,21 @@ class MyApp extends StatelessWidget {
     );
   }
 }
+
+TextStyle? largeButtonsTextStyle = Typography().white.button?.copyWith(
+      fontSize: 22,
+      fontWeight: FontWeight.w900,
+      letterSpacing: 1.8,
+    );
+
+ButtonStyle timerButtonStyle = TextButton.styleFrom(
+  textStyle: largeButtonsTextStyle,
+  shape: CircleBorder(),
+);
+
+ButtonStyle timeSelectionButtonStyle = TextButton.styleFrom(
+  textStyle: largeButtonsTextStyle,
+);
 
 class Home extends StatelessWidget {
   const Home({Key? key}) : super(key: key);

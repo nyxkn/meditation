@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import 'package:flutter_settings_screens/flutter_settings_screens.dart';
 import 'package:get_it/get_it.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 
 import 'package:meditation/audioplayer.dart';
 
@@ -46,26 +47,32 @@ class _SettingsWidgetState extends State<SettingsWidget> {
         title: const Text('Settings'),
       ),
       body: Center(
-        child: Column(
+        // child: Column(
+        child: ListView(
           // mainAxisSize: MainAxisSize.min,
           children: <Widget>[
-            SliderSettingsTile(
-              title: 'Bells volume',
-              settingKey: 'volume',
-              min: 0,
-              max: 10,
-              step: 1,
-              leading: Icon(Icons.volume_up),
-              onChange: (value) {
-                // play sound
-                // audioPlayer.stopPrevious();
-                // print('old value: ' + Settings.getValue<double>('volume', 0).toString());
-                // print('new value: $value');
-                if (value != lastVolumeValue) {
-                  audioPlayer.playSound('start-sound');
-                }
-                lastVolumeValue = value;
-              },
+            SettingsGroup(
+              title: 'volume',
+              children: [
+                SliderSettingsTile(
+                  title: 'Bells volume',
+                  settingKey: 'volume',
+                  min: 0,
+                  max: 10,
+                  step: 1,
+                  leading: Icon(Icons.volume_up),
+                  onChange: (value) {
+                    // play sound
+                    // audioPlayer.stopPrevious();
+                    // print('old value: ' + Settings.getValue<double>('volume', 0).toString());
+                    // print('new value: $value');
+                    if (value != lastVolumeValue) {
+                      audioPlayer.playSound('start-sound');
+                    }
+                    lastVolumeValue = value;
+                  },
+                ),
+              ],
             ),
             SettingsGroup(
               title: 'Options',
@@ -105,6 +112,25 @@ class _SettingsWidgetState extends State<SettingsWidget> {
                       audioPlayer.play(audioFiles.keys.elementAt(value));
                     }
                     lastEndSoundValue = value;
+                  },
+                ),
+              ],
+            ),
+            SettingsGroup(
+              title: 'info',
+              children: [
+                SizedBox(height: 16),
+                SimpleSettingsTile(
+                  title: 'About',
+                  subtitle: 'More info and licences',
+                  onTap: () async {
+                    final PackageInfo packageInfo = await PackageInfo.fromPlatform();
+                    showAboutDialog(
+                      context: context,
+                      applicationName: packageInfo.appName,
+                      applicationVersion: packageInfo.version + ' (${packageInfo.buildNumber})',
+                      applicationLegalese: "${packageInfo.packageName}\n\nA meditation timer made with Flutter.",
+                    );
                   },
                 ),
               ],

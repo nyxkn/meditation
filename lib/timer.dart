@@ -218,11 +218,7 @@ class _TimerWidgetState extends State<TimerWidget> with SingleTickerProviderStat
     NAudioPlayer audioPlayer = GetIt.I.get<NAudioPlayer>();
     audioPlayer.playSound('start-sound');
 
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Meditation started')
-      )
-    );
+    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Meditation started')));
   }
 
   Future<void> scheduleEndingNotification() async {
@@ -362,6 +358,7 @@ class _TimerWidgetState extends State<TimerWidget> with SingleTickerProviderStat
                       ),
                     ),
                     TextButton(
+                      style: timerButtonStyle,
                       onPressed: () {
                         onTimerButtonPress();
                       },
@@ -372,7 +369,6 @@ class _TimerWidgetState extends State<TimerWidget> with SingleTickerProviderStat
                         decoration: BoxDecoration(shape: BoxShape.circle),
                         child: Text(timerButtonText.toUpperCase()),
                       ),
-                      style: TextButton.styleFrom(shape: CircleBorder()),
                     ),
                   ],
                 ),
@@ -383,6 +379,7 @@ class _TimerWidgetState extends State<TimerWidget> with SingleTickerProviderStat
         Align(
           alignment: Alignment(0, 0.8),
           child: TextButton(
+            style: timeSelectionButtonStyle,
             onPressed: () {
               showTimeChoice();
             },
