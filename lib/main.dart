@@ -175,6 +175,10 @@ class MyApp extends StatelessWidget {
           backgroundColor: Colors.black,
           canvasColor: Colors.grey[900],
           dialogBackgroundColor: Colors.grey[900],
+          snackBarTheme: SnackBarThemeData(
+            backgroundColor: Colors.grey[900],
+            contentTextStyle: TextStyle(color: Colors.white),
+          ),
           progressIndicatorTheme: ProgressIndicatorThemeData(
             // circularTrackColor: Colors.black,
             circularTrackColor: Colors.grey[900],

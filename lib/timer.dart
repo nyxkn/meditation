@@ -120,6 +120,10 @@ class _TimerWidgetState extends State<TimerWidget> with SingleTickerProviderStat
       onTimerStart();
     } else {
       // manual stop
+      if (DateTime.now().difference(startTime).inSeconds < 1) {
+        // prevent accidental double tap
+        return;
+      }
       // AwesomeNotifications().cancelSchedule(endingNotificationID);
       AwesomeNotifications().cancel(endingNotificationID);
       // onTimerEnd(playAudio: true);
@@ -140,6 +144,9 @@ class _TimerWidgetState extends State<TimerWidget> with SingleTickerProviderStat
       logError("timer-end", "onTimerEnd called when it shouldn't have");
       return;
     }
+
+    // removing 'meditation started' snackbar in case it's still showing
+    ScaffoldMessenger.of(context).removeCurrentSnackBar();
 
     meditating = false;
     ticker.stop();
@@ -210,6 +217,12 @@ class _TimerWidgetState extends State<TimerWidget> with SingleTickerProviderStat
 
     NAudioPlayer audioPlayer = GetIt.I.get<NAudioPlayer>();
     audioPlayer.playSound('start-sound');
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Meditation started')
+      )
+    );
   }
 
   Future<void> scheduleEndingNotification() async {
