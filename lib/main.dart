@@ -38,7 +38,6 @@ Future<void> initNotifications() async {
       debug: true);
   log('init', 'awesome_notifications init: success = $success');
 
-  // FIXME show dialog first before asking for permission
   await AwesomeNotifications().isNotificationAllowed().then((isAllowed) {
     if (!isAllowed) {
       log('init', 'awesome_notifications: asking for permission');
@@ -64,9 +63,9 @@ Future<void> initNotifications() async {
 }
 
 Future<void> initFlutterBackground() async {
-  if (!Platform.isAndroid) {
-    return;
-  }
+  // if (!Platform.isAndroid) {
+  //   return;
+  // }
 
   const androidConfig = FlutterBackgroundAndroidConfig(
     notificationTitle: "Meditation in progress",

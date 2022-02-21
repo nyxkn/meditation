@@ -63,10 +63,6 @@ class _TimerWidgetState extends State<TimerWidget> with SingleTickerProviderStat
         }
       }
     });
-
-    // calling this here because it asks user for granting permissions
-    // and this should likely happen when the app has already loaded
-    initFlutterBackground();
   }
 
   @override
@@ -114,10 +110,62 @@ class _TimerWidgetState extends State<TimerWidget> with SingleTickerProviderStat
     });
   }
 
+  Future<bool> checkPermissions() async {
+    if (Platform.isAndroid) {
+      // checking and asking permissions for flutter_background
+      bool hasPermissions = await FlutterBackground.hasPermissions;
+      if (!hasPermissions) {
+        showDialog(
+          context: context,
+          barrierDismissible: false,
+          builder: (_) => AlertDialog(
+            title: Text("Permission required"),
+            // removing bottom padding from contentPadding. looks better.
+            // contentPadding defaults: https://api.flutter.dev/flutter/material/AlertDialog/contentPadding.html
+            contentPadding: EdgeInsets.fromLTRB(24, 20, 24, 0),
+            content: SingleChildScrollView(
+              child: Column(
+                children: [
+                  Text(
+                      "On the next screen you'll be asked to allow the app to run in the background.\n"),
+                  Text(
+                      "This is to ensure the timer can work reliably even when the app isn't focused or when the screen turns off.\n"),
+                  // Text("This feature will only be used when the timer is running."),
+                ],
+              ),
+            ),
+            actions: [
+              TextButton(
+                child: Text("OK"),
+                onPressed: () async {
+                  Navigator.of(context).pop();
+                  // this init call is just to ask for permission
+                  await initFlutterBackground();
+                },
+              ),
+            ],
+          ),
+        );
+
+        // doesn't matter whether we were granted permission or not.
+        // we do not start the timer. we wait for a new press instead.
+        return false;
+      } else {
+        // if we do have permissions, go ahead and initialize without worry of permission being asked again
+        await initFlutterBackground();
+      }
+    }
+
+    // return true if there were no permissions to check
+    return true;
+  }
+
   void onTimerButtonPress() async {
     if (!meditating) {
       // start
-      onTimerStart();
+      if (await checkPermissions() == true) {
+        onTimerStart();
+      }
     } else {
       // manual stop
       if (DateTime.now().difference(startTime).inSeconds < 1) {
