@@ -57,10 +57,14 @@ dev_dependencies:
   # rules and activating additional ones.
   flutter_lints: ^1.0.0
 
+# to generate icons:
+# flutter pub run flutter_launcher_icons:main
 flutter_icons:
   android: "launcher_icon"
   ios: true
   image_path: "assets/icon/icon-circle-192x192.png"
+  adaptive_icon_background: "#fafafa"
+  adaptive_icon_foreground: "assets/icon/icon-adaptive-foreground-108x108.png"
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
