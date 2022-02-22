@@ -107,11 +107,11 @@ Future<void> initDefaultSettings() async {
   }
 
   if (Settings.getValue<int>('start-sound', -1) == -1) {
-    await Settings.setValue<int>('start-sound', 0);
+    await Settings.setValue<int>('start-sound', 6);
   }
 
   if (Settings.getValue<int>('end-sound', -1) == -1) {
-    await Settings.setValue<int>('end-sound', 1);
+    await Settings.setValue<int>('end-sound', 0);
   }
 
   // if (Settings.getValue<bool>('hide-countdown', false) == false) {

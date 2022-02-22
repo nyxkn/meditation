@@ -8,6 +8,7 @@ import 'package:meditation/audioplayer.dart';
 
 const Map<String, String> audioFiles = {
   'bell_burma.ogg': 'Burma Bell',
+  'bell_burma_three.ogg': 'Three Burma Bells',
   'bell_indian.ogg': 'Indian Bell',
   'bell_meditation.ogg': 'Meditation Bell',
   'bell_singing.ogg': 'Singing Bell',
@@ -62,12 +63,8 @@ class _SettingsWidgetState extends State<SettingsWidget> {
                   step: 1,
                   leading: Icon(Icons.volume_up),
                   onChange: (value) {
-                    // play sound
-                    // audioPlayer.stopPrevious();
-                    // print('old value: ' + Settings.getValue<double>('volume', 0).toString());
-                    // print('new value: $value');
                     if (value != lastVolumeValue) {
-                      audioPlayer.playSound('start-sound');
+                      audioPlayer.playSound('end-sound');
                     }
                     lastVolumeValue = value;
                   },
