@@ -119,7 +119,7 @@ class _SettingsWidgetState extends State<SettingsWidget> {
                 SizedBox(height: 16),
                 SimpleSettingsTile(
                   title: 'About',
-                  subtitle: 'More info and licences',
+                  subtitle: 'Licences and other information',
                   onTap: () async {
                     final PackageInfo packageInfo = await PackageInfo.fromPlatform();
                     showAboutDialog(

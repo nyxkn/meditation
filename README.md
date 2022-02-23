@@ -3,6 +3,7 @@
 This is a meditation timer. Minimalistic, reliable, and truly elegant.
 
 ## Features
+
 - Simple, elegant, and intuitive
 - No distractions; only the essential features
 - Reliable volume adjustment independent of system volume
@@ -11,6 +12,7 @@ This is a meditation timer. Minimalistic, reliable, and truly elegant.
 - Free and open-source software
 
 ## About
+
 This project was started with the goal of making a truly minimalistic no-fuss countdown timer for meditation, with a clean UI and no clutter, reflecting the actual purpose of meditation.
 
 Another goal was to have the volume of the notification bells be consistent and reliable.
@@ -28,18 +30,48 @@ This app will make use of all possible tricks to ensure it is reliable. What I f
 - (optional) Keep screen on
 
 This might or might not be friendly to battery life.
-But once again I decided that reliability is of extreme importance to a meditation tool in order to eliminate all possible worries about the timer not behaving correctly.
+But I decided that reliability is of extreme importance to a meditation tool in order to eliminate all possible worries about the timer not behaving correctly.
 
-## Sounds attribution
-- bell_burma: https://freesound.org/people/LozKaye/sounds/94024/
-- bell_indian: https://soundbible.com/1690-Indian-Bell.html
-- bell_meditation: https://freesound.org/people/fauxpress/sounds/42095/
-- bell_singing: https://freesound.org/people/ryancacophony/sounds/202017/
-- bell_zen: https://soundbible.com/1491-Zen-Buddhist-Temple-Bell.html
-- bowl_singing_big: https://freesound.org/people/Garuda1982/sounds/116315/
-- bowl_singing: https://freesound.org/people/juskiddink/sounds/122647/
-- bowl_tibetan: https://freesound.org/people/arnaud%20coutancier/sounds/47665/
-- gong_bodhi: https://github.com/yuttadhammo/BodhiTimer (unclear origin)
-- gong_generated: https://freesound.org/people/nkuitse/sounds/18654/
-- gong_metal: https://soundbible.com/2062-Metal-Gong-1.html
-- gong_watts: https://github.com/yuttadhammo/BodhiTimer (unclear origin; possibly from the "Alan Watts Guided Meditation" audio)
+## Credits
+
+### Audio files
+
+Here's a listing of the original audio files that each asset was derived from.
+They were all modified to improve cohesion.
+
+- bell_burma: <https://freesound.org/people/LozKaye/sounds/94024/> (CC0)
+- bell_indian: <https://soundbible.com/1690-Indian-Bell.html> (CC Sampling Plus 1.0)
+- bell_meditation: <https://freesound.org/people/fauxpress/sounds/42095/> (CC0)
+- bell_singing: <https://freesound.org/people/ryancacophony/sounds/202017/> (CC0)
+- bell_zen: <https://soundbible.com/1491-Zen-Buddhist-Temple-Bell.html> (CC-BY 3.0)
+- bowl_singing_big: <https://freesound.org/people/Garuda1982/sounds/116315/> (CC0)
+- bowl_singing: <https://freesound.org/people/juskiddink/sounds/122647/> (CC-BY 3.0)
+- bowl_tibetan: <https://freesound.org/people/arnaud%20coutancier/sounds/47665/> (CC-BY-NC 3.0)
+- gong_bodhi: <https://github.com/yuttadhammo/BodhiTimer> (origin unclear)
+- gong_generated: <https://freesound.org/people/nkuitse/sounds/18654/> (CC0)
+- gong_metal: <https://soundbible.com/2062-Metal-Gong-1.html> (CC-BY 3.0)
+- gong_watts: <https://github.com/yuttadhammo/BodhiTimer> (origin unclear; possibly from the "Alan Watts Guided Meditation" audio)
+
+### Other
+
+- [Enso.svg](https://commons.wikimedia.org/wiki/File:Enso.svg) (CC0): used in the making of the app icons.
+
+## License
+
+### Source code
+
+This program is [free software](https://www.gnu.org/philosophy/free-sw.html): you can redistribute it and/or modify it under the terms of the [GNU General Public License](https://www.gnu.org/licenses/gpl-3.0.en.html) as published by the Free Software Foundation, version 3.
+
+All source code is licensed under the [GPL-3.0-only License](https://spdx.org/licenses/GPL-3.0-only.html).
+
+### Assets
+
+All assets (images and audio files) are licensed under the [CC-BY-SA 4.0 License](https://creativecommons.org/licenses/by-sa/4.0/).
+
+This includes everything in the *assets* folder and in *android/app/src/main/res*.
+
+### Third-party
+
+This project is developed using the [Flutter framework](https://flutter.dev/), which is licensed under the [BSD 3-Clause License](https://github.com/flutter/flutter/blob/master/LICENSE).
+
+Additional licensing information on all of the Flutter modules that are being used can be found in the in-app *About* screen.
