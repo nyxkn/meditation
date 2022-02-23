@@ -107,11 +107,13 @@ Future<void> initDefaultSettings() async {
   }
 
   if (Settings.getValue<int>('start-sound', -1) == -1) {
-    await Settings.setValue<int>('start-sound', 6);
+    var startSoundId = audioFiles.values.toList().indexOf('Singing Bowl');
+    await Settings.setValue<int>('start-sound', startSoundId);
   }
 
   if (Settings.getValue<int>('end-sound', -1) == -1) {
-    await Settings.setValue<int>('end-sound', 0);
+    var endSoundId = audioFiles.values.toList().indexOf('Burma Bell');
+    await Settings.setValue<int>('end-sound', endSoundId);
   }
 
   // if (Settings.getValue<bool>('hide-countdown', false) == false) {

@@ -12,13 +12,13 @@ const Map<String, String> audioFiles = {
   'bell_indian.ogg': 'Indian Bell',
   'bell_meditation.ogg': 'Meditation Bell',
   'bell_singing.ogg': 'Singing Bell',
-  'bell_zen.ogg': 'Zen Bell',
+  // 'bell_zen.ogg': 'Zen Bell',
   'bowl_singing.ogg': 'Singing Bowl',
   'bowl_singing_big.ogg': 'Big Singing Bowl',
-  'bowl_tibetan.ogg': 'Tibetan Bowl',
+  // 'bowl_tibetan.ogg': 'Tibetan Bowl',
   'gong_bodhi.ogg': 'Gong',
   'gong_generated.ogg': 'Generated Gong',
-  'gong_metal.ogg': 'Metal Gong',
+  // 'gong_metal.ogg': 'Metal Gong',
   'gong_watts.ogg': 'Alan Watts Gong',
 };
 

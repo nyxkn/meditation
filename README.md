@@ -43,13 +43,10 @@ They were all modified to improve cohesion.
 - bell_indian: <https://soundbible.com/1690-Indian-Bell.html> (CC Sampling Plus 1.0)
 - bell_meditation: <https://freesound.org/people/fauxpress/sounds/42095/> (CC0)
 - bell_singing: <https://freesound.org/people/ryancacophony/sounds/202017/> (CC0)
-- bell_zen: <https://soundbible.com/1491-Zen-Buddhist-Temple-Bell.html> (CC-BY 3.0)
 - bowl_singing_big: <https://freesound.org/people/Garuda1982/sounds/116315/> (CC0)
 - bowl_singing: <https://freesound.org/people/juskiddink/sounds/122647/> (CC-BY 3.0)
-- bowl_tibetan: <https://freesound.org/people/arnaud%20coutancier/sounds/47665/> (CC-BY-NC 3.0)
 - gong_bodhi: <https://github.com/yuttadhammo/BodhiTimer> (origin unclear)
 - gong_generated: <https://freesound.org/people/nkuitse/sounds/18654/> (CC0)
-- gong_metal: <https://soundbible.com/2062-Metal-Gong-1.html> (CC-BY 3.0)
 - gong_watts: <https://github.com/yuttadhammo/BodhiTimer> (origin unclear; possibly from the "Alan Watts Guided Meditation" audio)
 
 ### Other
