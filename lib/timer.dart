@@ -277,7 +277,7 @@ class _TimerWidgetState extends State<TimerWidget> with SingleTickerProviderStat
         channelKey: 'timer-end',
         title: 'Meditation ended',
         body: 'Tap to return to app',
-        icon: 'resource://drawable/notification_icon',
+        icon: 'resource://drawable/ic_notification',
         largeIcon: 'resource://mipmap/ic_launcher',
         // Alarm and Event seem to both show up in dnd mode (this is what we want)
         // Alarm also makes the notification undismissable with swiping and requires interaction

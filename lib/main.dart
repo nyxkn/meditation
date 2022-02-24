@@ -72,7 +72,7 @@ Future<void> initFlutterBackground() async {
     notificationText: "Foreground service notification to keep the app running",
     notificationImportance: AndroidNotificationImportance.Default,
     notificationIcon: AndroidResource(
-        name: 'notification_icon',
+        name: 'ic_notification',
         defType: 'drawable'), // Default is ic_launcher from folder mipmap
   );
 

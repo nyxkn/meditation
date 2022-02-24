@@ -62,9 +62,10 @@ dev_dependencies:
 flutter_icons:
   android: true
   ios: true
-  image_path: "assets/icon/icon-circle-192x192.png"
+  image_path_android: "assets/icon/icon-material-192px.png"
+  image_path_ios: "assets/icon/icon-material-192px.png"
   adaptive_icon_background: "#fafafa"
-  adaptive_icon_foreground: "assets/icon/icon-adaptive-foreground-108x108.png"
+  adaptive_icon_foreground: "assets/icon/icon-adaptive-foreground-432px.png"
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
