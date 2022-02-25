@@ -1,5 +1,7 @@
 # Meditation
 
+![meditation icon](media/icon-enso-208px.png =64x64)
+
 This is a meditation timer. Minimalistic, reliable, and truly elegant.
 
 ## Features
@@ -10,6 +12,12 @@ This is a meditation timer. Minimalistic, reliable, and truly elegant.
 - Reliable countdown timer
 - Beautiful assortment of bell and gong sounds
 - Free and open-source software
+
+## Screenshots
+
+<a href="media/screenshot-timer.png"><img width=162 src="media/screenshot-timer.png"></a>
+&nbsp;
+<a href="media/screenshot-settings.png"><img width=162 src="media/screenshot-settings.png"></a>
 
 ## About
 
