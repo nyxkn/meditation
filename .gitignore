@@ -49,4 +49,5 @@ app.*.map.json
 /assets/temp
 /assets-source
 /builds
+/media/temp
 /scripts

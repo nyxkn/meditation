@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 import 'package:awesome_notifications/awesome_notifications.dart';
 import 'package:flutter_background/flutter_background.dart';
@@ -72,8 +73,7 @@ Future<void> initFlutterBackground() async {
     notificationText: "Foreground service notification to keep the app running",
     notificationImportance: AndroidNotificationImportance.Default,
     notificationIcon: AndroidResource(
-        name: 'ic_notification',
-        defType: 'drawable'), // Default is ic_launcher from folder mipmap
+        name: 'ic_notification', defType: 'drawable'), // Default is ic_launcher from folder mipmap
   );
 
   bool success = await FlutterBackground.initialize(androidConfig: androidConfig);
@@ -135,6 +135,8 @@ void main() async {
   // Be sure to add this line if initialize() call happens before runApp()
   WidgetsFlutterBinding.ensureInitialized();
 
+  SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
+
   await initLogging();
 
   GetIt.I.registerSingleton<NAudioPlayer>(NAudioPlayer());
@@ -156,9 +158,6 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Meditation Timer',
-      // theme: ThemeData.dark().copyWith(
-      //   primaryColor: Colors.blue,
-      // ),
       theme: ThemeData(
           colorScheme: ColorScheme.dark().copyWith(
             primary: Colors.indigoAccent[100],
@@ -202,16 +201,8 @@ class MyApp extends StatelessWidget {
                       height: 2,
                       color: Colors.white,
                     ),
-                // button: Typography().white.button?.copyWith(
-                //     fontSize: 22,
-                //     fontWeight: FontWeight.w900,
-                //     letterSpacing: 1.8,
-                //     ),
               )),
       home: const Home(),
-      // home: WithForegroundTask(
-      //   child: const Home(),
-      // ),
     );
   }
 }
