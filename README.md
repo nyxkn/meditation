@@ -15,9 +15,9 @@ This is a meditation timer. Minimalistic, reliable, and truly elegant.
 
 ## Screenshots
 
-<a href="media/screenshot-timer.png"><img width=162 src="media/screenshot-timer.png"></a>
+<a href="media/screenshot-timer.png?raw=true"><img width=162 src="media/screenshot-timer.png"></a>
 &nbsp;
-<a href="media/screenshot-settings.png"><img width=162 src="media/screenshot-settings.png"></a>
+<a href="media/screenshot-settings.png?raw=true"><img width=162 src="media/screenshot-settings.png"></a>
 
 ## About
 
