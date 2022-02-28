@@ -21,7 +21,7 @@ This is a meditation timer. Minimalistic, reliable, and truly elegant.
 
 ## Description
 
-<i>Meditation</i> is a truly minimalistic countdown timer for meditation, with a clean UI and no clutter. This is an app that is itself a reflection of meditation's purpose.
+<i>Meditation</i> is a truly minimalistic countdown timer for meditation, with a clean user interface and no clutter. This is an app that is itself a reflection of meditation's purpose.
 
 Possibly the most important feature of this app is the ability to customize the volume of the notification bells independently of system volume. This allows you to set a predefined volume so that the sounds will reliably play at the same volume every time. No more mid-meditation worrying about whether you remembered to turn the volume up!
 
@@ -78,7 +78,7 @@ All source code is licensed under the [GPL-3.0-only License](https://spdx.org/li
 
 All assets (images and audio files) are licensed under the [CC-BY-SA 4.0 License](https://creativecommons.org/licenses/by-sa/4.0/).
 
-This includes everything in the *assets* folder and in *android/app/src/main/res*.
+This includes everything in the *assets* and *media* folders and in *android/app/src/main/res*.
 
 ### Third-party
 
