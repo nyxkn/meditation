@@ -1,0 +1,3 @@
+* Added 20 and 25 minutes timer presets
+* Cleaned up permission requirements
+* Added fastlane metadata
