@@ -309,6 +309,7 @@ class _TimerWidgetState extends State<TimerWidget> with SingleTickerProviderStat
   }
 
   Future<void> showTimeChoice() async {
+    var timeChoices = [5, 10, 15, 20, 25, 30, 45, 60];
     var _selected = await showDialog(
         context: context,
         builder: (BuildContext context) {
@@ -316,51 +317,18 @@ class _TimerWidgetState extends State<TimerWidget> with SingleTickerProviderStat
             title: const Text('Select time'),
             //@formatter:off
             children: <Widget>[
-              // when using Wrap we can add spacings but clickable area ends with the text
-              // see if you can find a way of expanding options horizontally
-              // but actually you can just use font height. probably a cleaner solution.
-
-              // SizedBox(height: 4),
-              // Wrap(
-              //   direction: Axis.vertical,
-              //   spacing: 4,
-              //   // crossAxisAlignment: CrossAxisAlignment.start,
-              //   // mainAxisAlignment: MainAxisAlignment.spaceAround,
-              //   children: [
               if (!kReleaseMode) SimpleDialogOption(
                 onPressed: () { Navigator.pop(context, 0); },
-                child: const Text('0 - test'),
+                child: const Text('0 - 10s'),
               ),
               SimpleDialogOption(
                 onPressed: () { Navigator.pop(context, 1); },
                 child: const Text('1 minute'),
               ),
-              SimpleDialogOption(
-                onPressed: () { Navigator.pop(context, 5); },
-                child: const Text('5 minutes'),
-              ),
-              SimpleDialogOption(
-                onPressed: () { Navigator.pop(context, 10); },
-                child: const Text('10 minutes'),
-              ),
-              SimpleDialogOption(
-                onPressed: () { Navigator.pop(context, 15); },
-                child: const Text('15 minutes'),
-              ),
-              SimpleDialogOption(
-                onPressed: () { Navigator.pop(context, 30); },
-                child: const Text('30 minutes'),
-              ),
-              SimpleDialogOption(
-                onPressed: () { Navigator.pop(context, 45); },
-                child: const Text('45 minutes'),
-              ),
-              SimpleDialogOption(
-                onPressed: () { Navigator.pop(context, 60); },
-                child: const Text('60 minutes'),
-              ),
-              //   ],
-              // ),
+              for (var t in timeChoices) SimpleDialogOption(
+                onPressed: () { Navigator.pop(context, t); },
+                child: Text('$t minutes'),
+              )
             ],
             //@formatter:on
           );

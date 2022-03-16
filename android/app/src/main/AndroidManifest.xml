@@ -16,10 +16,10 @@
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
 
-    <!-- removing permissions that are otherwise merged from awesome_notifications manifest -->
+    <!-- remove permissions that are otherwise merged from awesome_notifications manifest -->
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" tools:node="remove" />
     <uses-permission android:name="android.permission.VIBRATE" tools:node="remove" />
-    <!-- removing permissions that are otherwise merged from androidx.work manifest -->
+    <!-- remove permissions that are otherwise merged from androidx.work manifest -->
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" tools:node="remove" />
 
 
