@@ -5,7 +5,6 @@ import 'package:flutter/services.dart';
 
 import 'package:awesome_notifications/awesome_notifications.dart';
 import 'package:flutter_background/flutter_background.dart';
-import 'package:flutter_logs/flutter_logs.dart';
 import 'package:flutter_settings_screens/flutter_settings_screens.dart';
 import 'package:get_it/get_it.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -45,7 +44,12 @@ Future<void> initNotifications() async {
       // This is just a basic example. For real apps, you must show some
       // friendly dialog box before call the request method.
       // This is very important to not harm the user experience
-      AwesomeNotifications().requestPermissionToSendNotifications();
+      // AwesomeNotifications().requestPermissionToSendNotifications();
+      AwesomeNotifications().requestPermissionToSendNotifications(
+          permissions: [
+            NotificationPermission.Alert,
+            NotificationPermission.Sound,
+          ]);
     }
   });
 
@@ -78,23 +82,6 @@ Future<void> initFlutterBackground() async {
 
   bool success = await FlutterBackground.initialize(androidConfig: androidConfig);
   log('init', 'flutter_background init: success = $success');
-}
-
-Future<void> initLogging() async {
-  //Initialize Logging
-  String success = await FlutterLogs.initLogs(
-      logLevelsEnabled: [LogLevel.INFO, LogLevel.WARNING, LogLevel.ERROR, LogLevel.SEVERE],
-      // timeStampFormat: TimeStampFormat.TIME_FORMAT_READABLE,
-      timeStampFormat: TimeStampFormat.TIME_FORMAT_24_FULL,
-      directoryStructure: DirectoryStructure.FOR_DATE,
-      logTypesEnabled: ["device", "network", "errors"],
-      logFileExtension: LogFileExtension.LOG,
-      logsWriteDirectoryName: "MyLogs",
-      logsExportDirectoryName: "MyLogs/Exported",
-      debugFileOperations: true,
-      isDebuggable: true);
-
-  log('init', 'flutter_logs init: success = $success');
 }
 
 Future<void> initDefaultSettings() async {
@@ -136,8 +123,6 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
-
-  await initLogging();
 
   GetIt.I.registerSingleton<NAudioPlayer>(NAudioPlayer());
 

@@ -32,11 +32,11 @@ dependencies:
 
   # Project dependencies
   audioplayers: ^0.20.1
-  awesome_notifications: ^0.6.21
-  flutter_background: ^1.1.0
-  flutter_foreground_task: ^3.5.5
-  flutter_logs: ^2.1.5
+  awesome_notifications: ^0.6.21 # receive_boot_completed, vibrate
+  flutter_background: ^1.1.0 # foreground_service, wake_lock
+#  flutter_foreground_task: ^3.5.5
   flutter_settings_screens: ^0.3.2-null-safety
+  f_logs: ^2.0.0
   get_it: ^7.2.0
 #  permission_handler: ^8.3.0
   shared_preferences: ^2.0.12

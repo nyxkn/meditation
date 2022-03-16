@@ -91,6 +91,11 @@ flutter {
     source '../..'
 }
 
+configurations.all {
+    exclude group: 'me.leolin', module: 'ShortcutBadger'
+//    implementation "me.leolin:ShortcutBadger:1.1.22@aar"
+}
+
 dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
 
