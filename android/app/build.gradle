@@ -33,7 +33,7 @@ if (keystorePropertiesFile.exists()) {
 }
 
 android {
-    def minSdk = 23
+//    def minSdk = 21 // because of a bug, you need to set this below instead of here
     def targetSdk = 31
 
     compileSdkVersion targetSdk
@@ -58,7 +58,7 @@ android {
         // rather than using the variable minSdk. we can't even use the word min Sdk Version in comments
         // because it just naively looks for any line containing the string. even if it's a comment!
         // https://github.com/fluttercommunity/flutter_launcher_icons/issues/324
-        minSdkVersion 23
+        minSdkVersion 21
         targetSdkVersion targetSdk
         versionCode flutterVersionCode.toInteger()
         versionName flutterVersionName
