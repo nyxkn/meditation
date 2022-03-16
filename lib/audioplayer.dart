@@ -16,7 +16,7 @@ class NAudioPlayer {
   }
 
   void init() {
-    log("naudioplayer", "init");
+    log.i("naudioplayer init");
     // can only hide on android
     VolumeController().showSystemUI = false;
     audioPlayer.loadAll(audioFiles.keys.toList());

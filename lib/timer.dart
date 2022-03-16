@@ -55,10 +55,10 @@ class _TimerWidgetState extends State<TimerWidget> with SingleTickerProviderStat
       // this likely doesn't allow the sound to play on time
       // so you'd rather have to play it through the notification
       // or find another way of executing code when the app is not in the foreground
-      log("awesome-notifications", "notification displayed. id = ${receivedNotification.id}");
+      log.i("notification displayed. id = ${receivedNotification.id}");
       if (receivedNotification.id == endingNotificationID) {
         if (meditating) {
-          log("timer-end", "ending timer through displayedStream notification callback");
+          log.i("ending timer through displayedStream notification callback");
           onTimerEnd();
         }
       }
@@ -94,7 +94,7 @@ class _TimerWidgetState extends State<TimerWidget> with SingleTickerProviderStat
     } else {
       // backup system for ending the timer in case notification fails
       if (timeLeft.inSeconds <= 0) {
-        log("timer-end", "ending timer through updateTimer");
+        log.i("ending timer through updateTimer");
         onTimerEnd();
       }
     }
@@ -184,12 +184,12 @@ class _TimerWidgetState extends State<TimerWidget> with SingleTickerProviderStat
   }
 
   void onTimerEnd({bool playAudio = true}) async {
-    // log("timer-end", "called");
+    // log.i("timer-end", "called");
     // making sure this doesn't get called twice
     // since we do use the backup check on timerUpdate
     // as well as the notification
     if (!meditating) {
-      logError("timer-end", "onTimerEnd called when it shouldn't have");
+      log.e("onTimerEnd called when it shouldn't have");
       return;
     }
 
@@ -209,14 +209,14 @@ class _TimerWidgetState extends State<TimerWidget> with SingleTickerProviderStat
     if (Platform.isAndroid) {
       if (FlutterBackground.isBackgroundExecutionEnabled) {
         bool backgroundSuccess = await FlutterBackground.disableBackgroundExecution();
-        log("timer-end", 'disable flutter_background: success = $backgroundSuccess');
+        log.i("disable flutter_background: success = $backgroundSuccess");
       } else {
-        logError("timer-end", "background wasn't enabled. why?");
+        log.e("background wasn't enabled. why?");
       }
 
       // only dismiss on android
       Timer(const Duration(seconds: 10), () {
-        log("timer-end", "dismissing end notification");
+        log.i("dismissing end notification");
         AwesomeNotifications().dismiss(endingNotificationID);
       });
     }
@@ -252,13 +252,13 @@ class _TimerWidgetState extends State<TimerWidget> with SingleTickerProviderStat
     });
 
     if (Settings.getValue<bool>('screen-wakelock', false) == true) {
-      log('timer-start', 'enabling screen wakelock');
+      log.i('enabling screen wakelock');
       Wakelock.enable();
     }
 
     if (Platform.isAndroid) {
       bool backgroundSuccess = await FlutterBackground.enableBackgroundExecution();
-      log("timer-start", 'enable background success: $backgroundSuccess');
+      log.i('enable background success: $backgroundSuccess');
     }
 
     await scheduleEndingNotification();

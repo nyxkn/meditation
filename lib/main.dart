@@ -7,6 +7,7 @@ import 'package:awesome_notifications/awesome_notifications.dart';
 import 'package:flutter_background/flutter_background.dart';
 import 'package:flutter_settings_screens/flutter_settings_screens.dart';
 import 'package:get_it/get_it.dart';
+import 'package:logger/logger.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:meditation/audioplayer.dart';
@@ -36,11 +37,11 @@ Future<void> initNotifications() async {
             channelGroupkey: 'default-channel-group', channelGroupName: 'Default group')
       ],
       debug: true);
-  log('init', 'awesome_notifications init: success = $success');
+  log.i('awesome_notifications init: success = $success');
 
   await AwesomeNotifications().isNotificationAllowed().then((isAllowed) {
     if (!isAllowed) {
-      log('init', 'awesome_notifications: asking for permission');
+      log.i('awesome_notifications: asking for permission');
       // This is just a basic example. For real apps, you must show some
       // friendly dialog box before call the request method.
       // This is very important to not harm the user experience
@@ -81,7 +82,7 @@ Future<void> initFlutterBackground() async {
   );
 
   bool success = await FlutterBackground.initialize(androidConfig: androidConfig);
-  log('init', 'flutter_background init: success = $success');
+  log.i('flutter_background init: success = $success');
 }
 
 Future<void> initDefaultSettings() async {
@@ -125,6 +126,7 @@ void main() async {
   SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
 
   GetIt.I.registerSingleton<NAudioPlayer>(NAudioPlayer());
+  GetIt.I.registerSingleton<Logger>(Logger());
 
   await Settings.init();
   // await initFlutterBackground();
