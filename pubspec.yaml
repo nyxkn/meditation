@@ -38,7 +38,7 @@ dependencies:
   flutter_logs: ^2.1.5
   flutter_settings_screens: ^0.3.2-null-safety
   get_it: ^7.2.0
-  permission_handler: ^8.3.0
+#  permission_handler: ^8.3.0
   shared_preferences: ^2.0.12
   volume_controller: ^2.0.3
   wakelock: ^0.6.1+1
