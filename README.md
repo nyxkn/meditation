@@ -1,6 +1,6 @@
 # Meditation
 
-<img width=64 src="media/icon-enso-208px.png"><img>
+<img width=200 src="media/logo-wide.png"><img>
 
 This is a meditation timer. Minimalistic, reliable, and truly elegant.
 
