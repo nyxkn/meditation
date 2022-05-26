@@ -7,6 +7,7 @@ import 'package:flutter/scheduler.dart' hide Priority;
 
 import 'package:awesome_notifications/awesome_notifications.dart';
 import 'package:flutter_background/flutter_background.dart';
+import 'package:flutter_dnd/flutter_dnd.dart';
 import 'package:flutter_settings_screens/flutter_settings_screens.dart';
 import 'package:get_it/get_it.dart';
 import 'package:meditation/main.dart';
@@ -198,13 +199,19 @@ class _TimerWidgetState extends State<TimerWidget> with SingleTickerProviderStat
 
     meditating = false;
     ticker.stop();
-    Wakelock.disable();
 
     setState(() {
       // one last update so we know how much we were off on timeout
       timeLeft = timeLeftTo(endTime);
       timerButtonText = "begin";
     });
+
+    Wakelock.disable();
+
+    if (Settings.getValue<bool>('dnd', false) == true) {
+      log.i('disabling dnd');
+      await FlutterDnd.setInterruptionFilter(FlutterDnd.INTERRUPTION_FILTER_ALL);
+    }
 
     if (Platform.isAndroid) {
       if (FlutterBackground.isBackgroundExecutionEnabled) {
@@ -254,6 +261,11 @@ class _TimerWidgetState extends State<TimerWidget> with SingleTickerProviderStat
     if (Settings.getValue<bool>('screen-wakelock', false) == true) {
       log.i('enabling screen wakelock');
       Wakelock.enable();
+    }
+
+    if (Settings.getValue<bool>('dnd', false) == true) {
+      log.i('enabling dnd');
+      await FlutterDnd.setInterruptionFilter(FlutterDnd.INTERRUPTION_FILTER_ALARMS);
     }
 
     if (Platform.isAndroid) {

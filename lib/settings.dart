@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 
+import 'package:flutter_dnd/flutter_dnd.dart';
 import 'package:flutter_settings_screens/flutter_settings_screens.dart';
 import 'package:get_it/get_it.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 
 import 'package:meditation/audioplayer.dart';
+import 'package:meditation/utils.dart';
 
 const Map<String, String> audioFiles = {
   'bell_burma.ogg': 'Burma Bell',
@@ -80,6 +82,18 @@ class _SettingsWidgetState extends State<SettingsWidget> {
                   settingKey: 'screen-wakelock',
                   subtitle: "Enable this to keep the screen on as you meditate",
                 ),
+                CheckboxSettingsTile(
+                  title: 'Do Not Disturb',
+                  settingKey: 'dnd',
+                  subtitle: "Enable Do Not Disturb mode while meditating",
+                  onChange: (value) async {
+                    if (value == true) {
+                      if (! (await FlutterDnd.isNotificationPolicyAccessGranted ?? false)) {
+                        askPermissionDND();
+                      }
+                    }
+                  },
+                ),
               ],
             ),
             SettingsGroup(
@@ -136,5 +150,48 @@ class _SettingsWidgetState extends State<SettingsWidget> {
         ),
       ),
     );
+  }
+
+  Future<void> askPermissionDND() async {
+    bool hasPermissions = await FlutterDnd.isNotificationPolicyAccessGranted ?? false;
+    if (!hasPermissions) {
+      showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (_) =>
+            AlertDialog(
+              title: Text("Permission required"),
+              // removing bottom padding from contentPadding. looks better.
+              // contentPadding defaults: https://api.flutter.dev/flutter/material/AlertDialog/contentPadding.html
+              contentPadding: EdgeInsets.fromLTRB(24, 20, 24, 0),
+              content: SingleChildScrollView(
+                child: Column(
+                  children: [
+                    Text(
+                        "You'll now be taken to your system settings where you can grant this app the permission to access Do Not Disturb settings.\n"),
+                  ],
+                ),
+              ),
+              actions: [
+                TextButton(
+                  child: Text("OK"),
+                  onPressed: () async {
+                    Navigator.of(context).pop();
+                    // this function simply opens the settings, but the following code runs immediately in parallel
+                    // so we can't run code after we return to the app from changing the settings
+                    FlutterDnd.gotoPolicySettings();
+                    // this runs while we're in the settings screen
+                    // so our only option is to set false regardless and have the user re-check the setting
+                    await Settings.setValue<bool>('dnd', false);
+                    Navigator.pushReplacement(
+                      context,
+                      MaterialPageRoute(builder: (context) => const SettingsWidget()),
+                    );
+                  },
+                ),
+              ],
+            ),
+      );
+    }
   }
 }
