@@ -1,0 +1,1 @@
+* Added setting to enable Do Not Disturb while meditating

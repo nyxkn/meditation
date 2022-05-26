@@ -33,10 +33,11 @@ if (keystorePropertiesFile.exists()) {
 }
 
 android {
-//    def minSdk = 21 // because of a bug, you need to set this below instead of here
+//    def minSdk = 21 // because of a bug, you need to manually set this below
     def targetSdk = 31
 
     compileSdkVersion targetSdk
+    ndkVersion flutter.ndkVersion
 
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
@@ -59,6 +60,7 @@ android {
         // because it just naively looks for any line containing the string. even if it's a comment!
         // https://github.com/fluttercommunity/flutter_launcher_icons/issues/324
         minSdkVersion 21
+//        minSdkVersion minSdk
         targetSdkVersion targetSdk
         versionCode flutterVersionCode.toInteger()
         versionName flutterVersionName
@@ -103,12 +105,12 @@ dependencies {
     // https://developer.android.com/jetpack/androidx/releases/work#declaring_dependencies
     // 2.7.1 is the most recent stable release at the time of writing this
 
-    def work_version = "2.7.1"
-
-    // (Java only)
-    implementation "androidx.work:work-runtime:$work_version"
-
-    // Kotlin + coroutines
-    implementation "androidx.work:work-runtime-ktx:$work_version"
-
+//    def work_version = "2.7.1"
+//
+//    // (Java only)
+//    implementation "androidx.work:work-runtime:$work_version"
+//
+//    // Kotlin + coroutines
+//    implementation "androidx.work:work-runtime-ktx:$work_version"
+//
 }
