@@ -18,7 +18,6 @@
     <!-- remove permissions that are otherwise merged from androidx.work manifest -->
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" tools:node="remove" />
 
-
     <application
         android:label="Meditation"
         android:name="${applicationName}"
