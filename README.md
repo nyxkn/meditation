@@ -8,8 +8,8 @@ This is a meditation timer. Minimalistic, reliable, and truly elegant.
      alt="Get it on F-Droid"
      height="80">](https://f-droid.org/packages/com.nyxkn.meditation/)
      
-![GitHub release (latest by date)](https://img.shields.io/github/v/release/nyxkn/meditation)
-![F-Droid](https://img.shields.io/f-droid/v/com.nyxkn.meditation)
+![Shield: GitHub version](https://img.shields.io/github/v/release/nyxkn/meditation)
+![Shield: F-droid version](https://img.shields.io/f-droid/v/com.nyxkn.meditation)
 
 ## Features
 
