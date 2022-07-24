@@ -90,16 +90,16 @@ Future<void> initDefaultSettings() async {
   // this happens on a fresh install (or if you add a setting)
   // do not rely on the settingstile default value. that seems to only be visual
 
-  if (Settings.getValue<double>('volume', -1) == -1) {
+  if (Settings.getValue<double>('volume') == null) {
     await Settings.setValue<double>('volume', 6);
   }
 
-  if (Settings.getValue<int>('start-sound', -1) == -1) {
+  if (Settings.getValue<int>('start-sound') == null) {
     var startSoundId = audioFiles.values.toList().indexOf('Singing Bowl');
     await Settings.setValue<int>('start-sound', startSoundId);
   }
 
-  if (Settings.getValue<int>('end-sound', -1) == -1) {
+  if (Settings.getValue<int>('end-sound') == null) {
     var endSoundId = audioFiles.values.toList().indexOf('Burma Bell');
     await Settings.setValue<int>('end-sound', endSoundId);
   }

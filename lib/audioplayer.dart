@@ -39,7 +39,7 @@ class NAudioPlayer {
   }
 
   Future<void> playSound(String soundKey) async {
-    int audioIndex = Settings.getValue<int>(soundKey, 0);
+    int audioIndex = Settings.getValue<int>(soundKey) ?? 0;
     String audioFile = audioFiles.keys.elementAt(audioIndex);
     await play(audioFile);
   }
@@ -49,7 +49,7 @@ class NAudioPlayer {
       lastSystemVolume = await VolumeController().getVolume();
       volumeHijackable = false;
     }
-    double volume = Settings.getValue<double>('volume', 1) / 10.0;
+    double volume = (Settings.getValue<double>('volume') ?? 1.0) / 10.0;
     VolumeController().setVolume(volume);
   }
 

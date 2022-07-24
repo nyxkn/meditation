@@ -208,7 +208,7 @@ class _TimerWidgetState extends State<TimerWidget> with SingleTickerProviderStat
 
     Wakelock.disable();
 
-    if (Settings.getValue<bool>('dnd', false) == true) {
+    if (Settings.getValue<bool>('dnd') == true) {
       log.i('disabling dnd');
       await FlutterDnd.setInterruptionFilter(FlutterDnd.INTERRUPTION_FILTER_ALL);
     }
@@ -258,12 +258,12 @@ class _TimerWidgetState extends State<TimerWidget> with SingleTickerProviderStat
       timerButtonText = "end";
     });
 
-    if (Settings.getValue<bool>('screen-wakelock', false) == true) {
+    if (Settings.getValue<bool>('screen-wakelock') == true) {
       log.i('enabling screen wakelock');
       Wakelock.enable();
     }
 
-    if (Settings.getValue<bool>('dnd', false) == true) {
+    if (Settings.getValue<bool>('dnd') == true) {
       log.i('enabling dnd');
       await FlutterDnd.setInterruptionFilter(FlutterDnd.INTERRUPTION_FILTER_ALARMS);
     }
@@ -358,7 +358,7 @@ class _TimerWidgetState extends State<TimerWidget> with SingleTickerProviderStat
     return Stack(
       alignment: AlignmentDirectional.center,
       children: [
-        if (!Settings.getValue<bool>('hide-countdown', false))
+        if (Settings.getValue<bool>('hide-countdown') == false)
           Align(
               alignment: Alignment(0, -0.7),
               child: Row(
