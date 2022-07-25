@@ -171,9 +171,10 @@ class MyApp extends StatelessWidget {
       title: 'Meditation Timer',
       theme: ThemeData(
           colorScheme: ColorScheme.dark().copyWith(
-            primary: primaryColor,
+            // primary: Colors.indigoAccent[100];
             // primary: Colors.redAccent[100],
             // primary: Colors.deepPurpleAccent[100], // this seems to be close to the default
+            primary: primaryColor,
             background: Colors.black,
             surface: Colors.black,
             secondary: primaryColor,

@@ -90,9 +90,6 @@ class _SettingsWidgetState extends State<SettingsWidget> {
                   title: 'Keep screen on',
                   settingKey: 'screen-wakelock',
                   subtitle: "Enable this to keep the screen on as you meditate",
-                  // onChange: (value) {
-                  //   Settings.setValue('dnd', value, notify: true);
-                  // },
                 ),
                 CheckboxSettingsTile(
                   title: 'Do not disturb',
@@ -111,28 +108,25 @@ class _SettingsWidgetState extends State<SettingsWidget> {
                   settingKey: 'show-countdown',
                   subtitle: "Show the remaining meditation time",
                 ),
-                // SizedBox(height: 16),
                 TextInputSettingsTile(
                   title: 'Start delay',
                   settingKey: 'delay-time',
                   keyboardType: TextInputType.number,
                   selectAllOnFocus: true,
                   autovalidateMode: AutovalidateMode.onUserInteraction,
-                  validator: validatorConstructor(minTimerTime: 0) as Validator,
+                  validator: timeInputValidatorConstructor(minTimerTime: 1) as Validator,
                   inputFormatters: [
                     FilteringTextInputFormatter.digitsOnly,
-                    // FilteringTextInputFormatter.deny(RegExp(r"^0")),
                   ],
                   borderColor: primaryColor,
                   errorColor: secondaryColor,
-                  helperText: 'Start delay time in seconds.',
+                  helperText: 'Start delay time in seconds. 0 to disable.',
                 ),
               ],
             ),
             SettingsGroup(
               title: 'Sounds',
               children: <Widget>[
-                // SizedBox(height: 16),
                 RadioModalSettingsTile<int>(
                   title: 'Start sound',
                   settingKey: 'start-sound',
@@ -145,7 +139,6 @@ class _SettingsWidgetState extends State<SettingsWidget> {
                     lastStartSoundValue = value;
                   },
                 ),
-                // SizedBox(height: 16),
                 RadioModalSettingsTile<int>(
                   title: 'End sound',
                   settingKey: 'end-sound',
@@ -168,7 +161,6 @@ class _SettingsWidgetState extends State<SettingsWidget> {
                   title: 'Enable intervals',
                   subtitle: 'Intermediate bells during your meditation',
                   childrenIfEnabled: [
-                    // SizedBox(height: 8),
                     Divider(height: 4, thickness: 4, indent: 0),
                     Container(
                       padding: EdgeInsets.only(left: 8.0),
@@ -180,7 +172,7 @@ class _SettingsWidgetState extends State<SettingsWidget> {
                             keyboardType: TextInputType.number,
                             selectAllOnFocus: true,
                             autovalidateMode: AutovalidateMode.onUserInteraction,
-                            validator: timeInputValidator,
+                            validator: timeInputValidatorConstructor(minTimerTime: 1) as Validator,
                             inputFormatters: [
                               FilteringTextInputFormatter.digitsOnly,
                               FilteringTextInputFormatter.deny(RegExp(r"^0")),
@@ -236,8 +228,7 @@ class _SettingsWidgetState extends State<SettingsWidget> {
             if (!kReleaseMode)
               SettingsGroup(
                 title: 'debug',
-                children: [
-                ],
+                children: [],
               ),
           ],
         ),

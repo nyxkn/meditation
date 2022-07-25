@@ -511,7 +511,7 @@ class _TimerWidgetState extends State<TimerWidget> with SingleTickerProviderStat
                         FilteringTextInputFormatter.digitsOnly,
                         FilteringTextInputFormatter.deny(RegExp(r"^0")),
                       ],
-                      validator: timeInputValidator,
+                      validator: timeInputValidatorConstructor() as Validator,
                       decoration: InputDecoration(
                         helperText: "Input time in minutes.",
                         errorMaxLines: 3,

@@ -4,24 +4,25 @@ import 'package:intl/intl.dart';
 import 'package:logger/logger.dart';
 
 const maxTimerTime = 60;
+
 final primaryColor = Colors.indigoAccent[100];
 final secondaryColor = Colors.redAccent[100];
 
-String? timeInputValidator(String? input, { minTimerTime = 1 }) {
-  // var minTimerTime = 1;
-  if (input != null && input != "") {
-    var minutes = int.parse(input);
-    if (minutes >= minTimerTime && minutes <= maxTimerTime) {
-      return null;
-    }
-  }
-  return "Interval time should be a number between $minTimerTime and $maxTimerTime.";
-}
+// String? timeInputValidator(String? input, { minTimerTime = 1 }) {
+//   // var minTimerTime = 1;
+//   if (input != null && input != "") {
+//     var minutes = int.parse(input);
+//     if (minutes >= minTimerTime && minutes <= maxTimerTime) {
+//       return null;
+//     }
+//   }
+//   return "Interval time should be a number between $minTimerTime and $maxTimerTime.";
+// }
 
 typedef Validator = String? Function(String?);
 // Validator a = timeInputValidator(minTimerTime: 1) as Validator;
 
-Function validatorConstructor({minTimerTime = 1}) {
+Function timeInputValidatorConstructor({minTimerTime = 1}) {
   String? validator(String? input) {
     if (input != null && input != "") {
       var minutes = int.parse(input);
@@ -31,9 +32,9 @@ Function validatorConstructor({minTimerTime = 1}) {
     }
     return "Interval time should be a number between $minTimerTime and $maxTimerTime";
   }
+
   return validator;
 }
-
 
 Duration timeLeftTo(DateTime endTime) {
   Duration timeLeft = endTime.difference(DateTime.now()) + Duration(seconds: 1);
@@ -50,7 +51,8 @@ class NLogger extends Logger {
 
 var log = Logger(
   filter: null, // Use the default LogFilter (-> only log in debug mode)
-  printer: PrettyPrinter( // Use the PrettyPrinter to format and print log
+  printer: PrettyPrinter(
+      // Use the PrettyPrinter to format and print log
       methodCount: 0,
       // number of method calls to be displayed
       errorMethodCount: 8,
@@ -62,6 +64,6 @@ var log = Logger(
       printEmojis: false,
       // Print an emoji for each log message
       printTime: true // Should each log print contain a timestamp
-  ),
+      ),
   output: null, // Use the default LogOutput (-> send everything to console)
 );
