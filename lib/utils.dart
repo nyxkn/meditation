@@ -7,15 +7,31 @@ const maxTimerTime = 60;
 final primaryColor = Colors.indigoAccent[100];
 final secondaryColor = Colors.redAccent[100];
 
-String? timeInputValidator(String? input) {
-  var minTimerTime = 1;
+String? timeInputValidator(String? input, { minTimerTime = 1 }) {
+  // var minTimerTime = 1;
   if (input != null && input != "") {
     var minutes = int.parse(input);
     if (minutes >= minTimerTime && minutes <= maxTimerTime) {
       return null;
     }
   }
-  return "Interval time should be a number between $minTimerTime and $maxTimerTime";
+  return "Interval time should be a number between $minTimerTime and $maxTimerTime.";
+}
+
+typedef Validator = String? Function(String?);
+// Validator a = timeInputValidator(minTimerTime: 1) as Validator;
+
+Function validatorConstructor({minTimerTime = 1}) {
+  String? validator(String? input) {
+    if (input != null && input != "") {
+      var minutes = int.parse(input);
+      if (minutes >= minTimerTime && minutes <= maxTimerTime) {
+        return null;
+      }
+    }
+    return "Interval time should be a number between $minTimerTime and $maxTimerTime";
+  }
+  return validator;
 }
 
 

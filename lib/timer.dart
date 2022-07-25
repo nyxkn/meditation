@@ -18,6 +18,8 @@ import 'package:wakelock/wakelock.dart';
 import 'package:meditation/audioplayer.dart';
 import 'package:meditation/utils.dart';
 
+enum TimerState { stopped, delaying, meditating }
+
 class TimerWidget extends StatefulWidget {
   const TimerWidget({Key? key}) : super(key: key);
 
@@ -31,8 +33,9 @@ class _TimerWidgetState extends State<TimerWidget> with SingleTickerProviderStat
 
   late Ticker ticker;
 
-  bool meditating = false;
+  TimerState timerState = TimerState.stopped;
   int timerMinutes = 0;
+  int timerDelaySeconds = 0;
   String timerButtonText = "begin";
 
   DateTime startTime = DateTime.now();
@@ -48,7 +51,8 @@ class _TimerWidgetState extends State<TimerWidget> with SingleTickerProviderStat
   void initState() {
     super.initState();
 
-    ticker = createTicker(updateTimer);
+    ticker = createTicker(timerUpdate);
+    // timerDelayTicker = createTicker(timerDelayUpdate);
 
     SharedPreferences.getInstance().then((prefs) {
       setState(() {
@@ -64,13 +68,13 @@ class _TimerWidgetState extends State<TimerWidget> with SingleTickerProviderStat
       // or find another way of executing code when the app is not in the foreground
       log.i("notification displayed. id = ${receivedNotification.id}");
       if (receivedNotification.id == endingNotificationID) {
-        if (meditating) {
+        if (timerState == TimerState.meditating) {
           log.i("ending timer through displayedStream notification callback");
           onTimerEnd();
         }
       }
       if (receivedNotification.id == intervalNotificationID) {
-        if (meditating) {
+        if (timerState == TimerState.meditating) {
           log.i("reached interval timer through displayedStream notification callback");
           onTimerInterval();
         }
@@ -101,54 +105,79 @@ class _TimerWidgetState extends State<TimerWidget> with SingleTickerProviderStat
     }
   }
 
-  void updateTimer(Duration elapsed) {
-    if (!meditating) {
+  void timerUpdate(Duration elapsed) {
+    if (timerState == TimerState.stopped) {
       return;
     }
 
-    // backup system for ending the timer in case notification fails
-    if (timeLeft.inSeconds <= 0) {
-      log.i("ending timer through updateTimer");
-      onTimerEnd();
-      return;
-    }
+    if (timerState == TimerState.delaying) {
+      // delaying
 
-    var timeElapsed = DateTime.now().difference(startTime);
+      var countdown = timerDelaySeconds - elapsed.inSeconds;
 
-    if (intervalsEnabled && intervalCount > 0) {
-      if (timeLeft <= intervalTime * intervalCount) {
-        intervalCount -= 1;
-        onTimerInterval();
+      setState(() {
+        timerButtonText = countdown.toString();
+      });
+
+      if (elapsed.inSeconds > timerDelaySeconds - 1) {
+        // done delaying
+        onMeditationStart();
       }
     }
-    // log.d(startTime.add(intervalTime));
-    // print(startTime);
-    // print(startTime.add(intervalTime));
-    // if (timeLeft.inMinutes % intervalTime == 0) {
-    //   onTimerInterval();
-    // }
 
-    // invlerp: t = (v-a) / (b-a);
-    int vma = timeElapsed.inMilliseconds;
-    int bma = endTime.difference(startTime).inMilliseconds;
-    double t = vma / bma;
+    if (timerState == TimerState.meditating) {
+      // meditating
 
-    setState(() {
-      timerProgress = t;
-      timeLeft = timeLeftTo(endTime);
-    });
+      // backup system for ending the timer in case notification fails
+      if (timeLeft.inSeconds <= 0) {
+        log.i("ending timer through updateTimer");
+        onTimerEnd();
+        return;
+      }
+
+      var timeElapsed = DateTime.now().difference(startTime);
+
+      if (intervalsEnabled && intervalCount > 0) {
+        if (timeLeft <= intervalTime * intervalCount) {
+          intervalCount -= 1;
+          onTimerInterval();
+        }
+      }
+
+      // invlerp: t = (v-a) / (b-a);
+      int vma = timeElapsed.inMilliseconds;
+      int bma = endTime.difference(startTime).inMilliseconds;
+      double t = vma / bma;
+
+      setState(() {
+        timerProgress = t;
+        timeLeft = timeLeftTo(endTime);
+      });
+    }
   }
 
   void onTimerButtonPress() async {
-    if (!meditating) {
+    if (timerState == TimerState.stopped) {
       // start
       if (await checkPermissions() == true) {
+        timerDelaySeconds = int.parse(Settings.getValue<String>('delay-time') ?? '0');
+        ticker.start();
         onTimerStart();
+
+        if (timerDelaySeconds >= 1) {
+          // start delay
+          timerState = TimerState.delaying;
+          // onTimerStart() will be called at the end of the elapsed time
+        } else {
+          // start meditation
+          onMeditationStart();
+        }
       }
     } else {
       // manual stop
-      if (DateTime.now().difference(startTime).inSeconds < 1) {
+      if (timerDelaySeconds == 0 && DateTime.now().difference(startTime).inSeconds < 1) {
         // prevent accidental double tap
+        // but not if coming from the delayed start
         return;
       }
       // AwesomeNotifications().cancelSchedule(endingNotificationID);
@@ -164,7 +193,7 @@ class _TimerWidgetState extends State<TimerWidget> with SingleTickerProviderStat
   }
 
   void onTimerInterval() async {
-    if (!meditating) {
+    if (timerState != TimerState.meditating) {
       log.e("onTimerInterval called after meditation finished");
       return;
     }
@@ -175,12 +204,81 @@ class _TimerWidgetState extends State<TimerWidget> with SingleTickerProviderStat
     audioPlayer.playSound('interval-sound');
   }
 
+  // this happens on either start or delay
+  void onTimerStart() async {
+    // cleaning up endingnotification in case it's still around
+    // 10s timer for dismissal at onTimerEnd will still call and presumably do nothing
+    // probably no need to fix that
+    AwesomeNotifications().dismiss(endingNotificationID);
+
+    if (Settings.getValue<bool>('screen-wakelock') == true) {
+      log.i('enabling screen wakelock');
+      Wakelock.enable();
+    }
+
+    if (Settings.getValue<bool>('dnd') == true) {
+      log.i('enabling dnd');
+      await FlutterDnd.setInterruptionFilter(FlutterDnd.INTERRUPTION_FILTER_ALARMS);
+    }
+
+    if (Platform.isAndroid) {
+      bool backgroundSuccess = await FlutterBackground.enableBackgroundExecution();
+      log.i('enable background success: $backgroundSuccess');
+    }
+
+    await scheduleEndingNotification();
+  }
+
+  // pretty much just the visual/aural part and the switch of state
+  void onMeditationStart() async {
+    timerState = TimerState.meditating;
+
+    setState(() {
+      print("setstate ontimerstart");
+      timerButtonText = "end";
+    });
+
+    startTime = DateTime.now();
+    if (timerMinutes == 0) {
+      // this is the test mode
+      endTime = startTime.add(Duration(seconds: 10));
+    } else {
+      endTime = startTime.add(Duration(minutes: timerMinutes));
+    }
+    // initial calculation
+    timeLeft = timeLeftTo(endTime);
+
+    intervalsEnabled = Settings.getValue<bool>('intervals-enabled') ?? false;
+    if (intervalsEnabled) {
+      intervalTime =
+          Duration(minutes: int.parse(Settings.getValue<String>('interval-time') ?? '0'));
+      if (intervalTime.inMinutes >= 1) {
+        log.i('enabling intervals');
+        var diff = endTime.difference(startTime);
+        intervalCount = (diff.inMinutes / intervalTime.inMinutes).floor();
+        if (diff.inMinutes % intervalTime.inMinutes == 0) {
+          // if no remainder, then we remove the last count
+          // which would happen together with the end bell
+          intervalCount -= 1;
+        }
+        log.d("interval count: $intervalCount");
+        // await scheduleIntervalNotification();
+      }
+    }
+
+    NAudioPlayer audioPlayer = GetIt.I.get<NAudioPlayer>();
+    audioPlayer.playSound('start-sound');
+
+    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Meditation started')));
+  }
+
   void onTimerEnd({bool playAudio = true}) async {
     // log.i("timer-end", "called");
     // making sure this doesn't get called twice
     // since we do use the backup check on timerUpdate
     // as well as the notification
-    if (!meditating) {
+    if (timerState == TimerState.stopped) {
+      // if (!meditating) {
       log.e("onTimerEnd called when it shouldn't have");
       return;
     }
@@ -188,12 +286,13 @@ class _TimerWidgetState extends State<TimerWidget> with SingleTickerProviderStat
     // removing 'meditation started' snackbar in case it's still showing
     ScaffoldMessenger.of(context).removeCurrentSnackBar();
 
-    meditating = false;
+    timerState = TimerState.stopped;
     ticker.stop();
 
     setState(() {
       // one last update so we know how much we were off on timeout
       timeLeft = timeLeftTo(endTime);
+      log.d("ending meditation at timeLeft: $timeLeft");
       timerButtonText = "begin";
     });
 
@@ -228,71 +327,6 @@ class _TimerWidgetState extends State<TimerWidget> with SingleTickerProviderStat
     } else {
       audioPlayer.stopPrevious();
     }
-  }
-
-  void onTimerStart() async {
-    // cleaning up endingnotification in case it's still around
-    // 10s timer for dismissal at onTimerEnd will still call and presumably do nothing
-    // probably no need to fix that
-    AwesomeNotifications().dismiss(endingNotificationID);
-
-    startTime = DateTime.now();
-    if (timerMinutes == 0) {
-      // this is the test mode
-      endTime = startTime.add(Duration(seconds: 10));
-    } else {
-      endTime = startTime.add(Duration(minutes: timerMinutes));
-    }
-    // initial calculation
-    timeLeft = timeLeftTo(endTime);
-
-    meditating = true;
-    ticker.start();
-
-    setState(() {
-      timerButtonText = "end";
-    });
-
-    if (Settings.getValue<bool>('screen-wakelock') == true) {
-      log.i('enabling screen wakelock');
-      Wakelock.enable();
-    }
-
-    if (Settings.getValue<bool>('dnd') == true) {
-      log.i('enabling dnd');
-      await FlutterDnd.setInterruptionFilter(FlutterDnd.INTERRUPTION_FILTER_ALARMS);
-    }
-
-    if (Platform.isAndroid) {
-      bool backgroundSuccess = await FlutterBackground.enableBackgroundExecution();
-      log.i('enable background success: $backgroundSuccess');
-    }
-
-    await scheduleEndingNotification();
-
-    intervalsEnabled = Settings.getValue<bool>('intervals-enabled') ?? false;
-    if (intervalsEnabled) {
-      intervalTime = Duration(minutes: int.parse(Settings.getValue<String>('interval-time') ?? ''));
-      if (intervalTime.inMinutes >= 1) {
-        log.i('enabling intervals');
-        // log.d(startTime);
-        // log.d(startTime.add(intervalTime));
-        var diff = endTime.difference(startTime);
-        intervalCount = (diff.inMinutes / intervalTime.inMinutes).floor();
-        if (diff.inMinutes % intervalTime.inMinutes == 0) {
-          // if no remainder, then we remove the last count
-          // which would happen together with the end bell
-          intervalCount -= 1;
-        }
-        log.d("interval count: $intervalCount");
-        // await scheduleIntervalNotification();
-      }
-    }
-
-    NAudioPlayer audioPlayer = GetIt.I.get<NAudioPlayer>();
-    audioPlayer.playSound('start-sound');
-
-    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Meditation started')));
   }
 
   Future<void> scheduleEndingNotification() async {
@@ -560,7 +594,7 @@ class _TimerWidgetState extends State<TimerWidget> with SingleTickerProviderStat
       children: [
         if (Settings.getValue<bool>('show-countdown') == true)
           Align(
-              alignment: Alignment(0, -0.7),
+              alignment: Alignment(0, -0.75),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
@@ -581,7 +615,7 @@ class _TimerWidgetState extends State<TimerWidget> with SingleTickerProviderStat
                       width: MediaQuery.of(context).size.shortestSide / 1.5,
                       height: MediaQuery.of(context).size.shortestSide / 1.5,
                       child: CircularProgressIndicator(
-                        value: meditating ? timerProgress : 0.0,
+                        value: timerState == TimerState.meditating ? timerProgress : 0.0,
                         strokeWidth: 10,
                       ),
                     ),
@@ -605,7 +639,7 @@ class _TimerWidgetState extends State<TimerWidget> with SingleTickerProviderStat
           ),
         ),
         Align(
-          alignment: Alignment(0, 0.8),
+          alignment: Alignment(0, 0.78),
           child: TextButton(
             style: timeSelectionButtonStyle,
             onPressed: () {

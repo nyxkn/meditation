@@ -95,9 +95,9 @@ class _SettingsWidgetState extends State<SettingsWidget> {
                   // },
                 ),
                 CheckboxSettingsTile(
-                  title: 'Do Not Disturb',
+                  title: 'Do not disturb',
                   settingKey: 'dnd',
-                  subtitle: "Enable Do Not Disturb mode while meditating",
+                  subtitle: "Enable 'Do Not Disturb' mode while meditating",
                   onChange: (value) async {
                     if (value == true) {
                       if (!(await FlutterDnd.isNotificationPolicyAccessGranted ?? false)) {
@@ -106,12 +106,33 @@ class _SettingsWidgetState extends State<SettingsWidget> {
                     }
                   },
                 ),
+                CheckboxSettingsTile(
+                  title: 'Show countdown',
+                  settingKey: 'show-countdown',
+                  subtitle: "Show the remaining meditation time",
+                ),
+                // SizedBox(height: 16),
+                TextInputSettingsTile(
+                  title: 'Start delay',
+                  settingKey: 'delay-time',
+                  keyboardType: TextInputType.number,
+                  selectAllOnFocus: true,
+                  autovalidateMode: AutovalidateMode.onUserInteraction,
+                  validator: validatorConstructor(minTimerTime: 0) as Validator,
+                  inputFormatters: [
+                    FilteringTextInputFormatter.digitsOnly,
+                    // FilteringTextInputFormatter.deny(RegExp(r"^0")),
+                  ],
+                  borderColor: primaryColor,
+                  errorColor: secondaryColor,
+                  helperText: 'Start delay time in seconds.',
+                ),
               ],
             ),
             SettingsGroup(
               title: 'Sounds',
               children: <Widget>[
-                SizedBox(height: 16),
+                // SizedBox(height: 16),
                 RadioModalSettingsTile<int>(
                   title: 'Start sound',
                   settingKey: 'start-sound',
@@ -124,7 +145,7 @@ class _SettingsWidgetState extends State<SettingsWidget> {
                     lastStartSoundValue = value;
                   },
                 ),
-                SizedBox(height: 16),
+                // SizedBox(height: 16),
                 RadioModalSettingsTile<int>(
                   title: 'End sound',
                   settingKey: 'end-sound',
@@ -147,7 +168,8 @@ class _SettingsWidgetState extends State<SettingsWidget> {
                   title: 'Enable intervals',
                   subtitle: 'Intermediate bells during your meditation',
                   childrenIfEnabled: [
-                    Divider(height: 16, thickness: 4, indent: 16),
+                    // SizedBox(height: 8),
+                    Divider(height: 4, thickness: 4, indent: 0),
                     Container(
                       padding: EdgeInsets.only(left: 8.0),
                       child: Column(
@@ -158,20 +180,20 @@ class _SettingsWidgetState extends State<SettingsWidget> {
                             keyboardType: TextInputType.number,
                             selectAllOnFocus: true,
                             autovalidateMode: AutovalidateMode.onUserInteraction,
+                            validator: timeInputValidator,
                             inputFormatters: [
                               FilteringTextInputFormatter.digitsOnly,
                               FilteringTextInputFormatter.deny(RegExp(r"^0")),
                             ],
-                            validator: timeInputValidator,
-                            borderColor: Colors.blueAccent,
-                            errorColor: Colors.deepOrangeAccent,
+                            borderColor: primaryColor,
+                            errorColor: secondaryColor,
                             helperText: 'Intervals time in minutes.',
                           ),
-                          Divider(
-                            height: 8,
-                            thickness: 1,
-                            indent: 8,
-                          ),
+                          // Divider(
+                          //   height: 1,
+                          //   thickness: 1,
+                          //   indent: 8,
+                          // ),
                           RadioModalSettingsTile<int>(
                             title: 'Interval sound',
                             settingKey: 'interval-sound',
@@ -195,7 +217,6 @@ class _SettingsWidgetState extends State<SettingsWidget> {
             SettingsGroup(
               title: 'info',
               children: [
-                SizedBox(height: 16),
                 SimpleSettingsTile(
                   title: 'About',
                   subtitle: 'Licences and other information',
@@ -216,10 +237,6 @@ class _SettingsWidgetState extends State<SettingsWidget> {
               SettingsGroup(
                 title: 'debug',
                 children: [
-                  CheckboxSettingsTile(
-                    title: 'Show countdown',
-                    settingKey: 'show-countdown',
-                  ),
                 ],
               ),
           ],
