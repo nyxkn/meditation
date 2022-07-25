@@ -46,11 +46,10 @@ Future<void> initNotifications() async {
       // friendly dialog box before call the request method.
       // This is very important to not harm the user experience
       // AwesomeNotifications().requestPermissionToSendNotifications();
-      AwesomeNotifications().requestPermissionToSendNotifications(
-          permissions: [
-            NotificationPermission.Alert,
-            NotificationPermission.Sound,
-          ]);
+      AwesomeNotifications().requestPermissionToSendNotifications(permissions: [
+        NotificationPermission.Alert,
+        NotificationPermission.Sound,
+      ]);
     }
   });
 
@@ -60,6 +59,18 @@ Future<void> initNotifications() async {
         channelKey: 'timer-end',
         channelName: 'Timer end',
         channelDescription: 'Notifications displayed at the end of meditation',
+        defaultColor: Colors.red,
+        importance: NotificationImportance.Max,
+        playSound: false,
+        enableVibration: false,
+      ),
+      forceUpdate: false);
+
+  await AwesomeNotifications().setChannel(
+      NotificationChannel(
+        channelKey: 'timer-interval',
+        channelName: 'Timer interval',
+        channelDescription: 'Interval notifications displayed during the meditation',
         defaultColor: Colors.red,
         importance: NotificationImportance.Max,
         playSound: false,
@@ -90,23 +101,36 @@ Future<void> initDefaultSettings() async {
   // this happens on a fresh install (or if you add a setting)
   // do not rely on the settingstile default value. that seems to only be visual
 
-  if (Settings.getValue<double>('volume', -1) == -1) {
+  if (Settings.getValue<double>('volume') == null) {
     await Settings.setValue<double>('volume', 6);
   }
 
-  if (Settings.getValue<int>('start-sound', -1) == -1) {
+  if (Settings.getValue<int>('start-sound') == null) {
     var startSoundId = audioFiles.values.toList().indexOf('Singing Bowl');
     await Settings.setValue<int>('start-sound', startSoundId);
   }
 
-  if (Settings.getValue<int>('end-sound', -1) == -1) {
+  if (Settings.getValue<int>('end-sound') == null) {
     var endSoundId = audioFiles.values.toList().indexOf('Burma Bell');
     await Settings.setValue<int>('end-sound', endSoundId);
   }
 
-  // if (Settings.getValue<bool>('hide-countdown', false) == false) {
-  //   await Settings.setValue<bool>('hide-countdown', false);
-  // }
+  if (Settings.getValue<int>('interval-sound') == null) {
+    var intervalSoundId = audioFiles.values.toList().indexOf('Meditation Bell');
+    await Settings.setValue<int>('interval-sound', intervalSoundId);
+  }
+
+  if (Settings.getValue<String>('interval-time') == null) {
+    await Settings.setValue<String>('interval-time', '5');
+  }
+
+  if (Settings.getValue<bool>('show-countdown') == null) {
+    await Settings.setValue<bool>('show-countdown', false);
+  }
+
+  if (Settings.getValue<String>('delay-time') == null) {
+    await Settings.setValue<String>('delay-time', '0');
+  }
 }
 
 Future<void> initDefaultPrefs() async {
@@ -147,12 +171,13 @@ class MyApp extends StatelessWidget {
       title: 'Meditation Timer',
       theme: ThemeData(
           colorScheme: ColorScheme.dark().copyWith(
-            primary: Colors.indigoAccent[100],
+            // primary: Colors.indigoAccent[100];
             // primary: Colors.redAccent[100],
             // primary: Colors.deepPurpleAccent[100], // this seems to be close to the default
+            primary: primaryColor,
             background: Colors.black,
             surface: Colors.black,
-            secondary: Colors.indigoAccent[100],
+            secondary: primaryColor,
           ),
           scaffoldBackgroundColor: Color(0xFF121212),
           // scaffoldBackgroundColor: Colors.black,
