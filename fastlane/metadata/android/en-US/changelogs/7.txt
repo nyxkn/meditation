@@ -1,0 +1,3 @@
+* Added choice of custom meditation time
+* Added optional delay before starting the meditation timer
+* Added intermediate bells at user-defined intervals

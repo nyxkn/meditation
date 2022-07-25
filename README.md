@@ -17,6 +17,7 @@ This is a meditation timer. Minimalistic, reliable, and truly elegant.
 * No distractions; only the essential features
 * Custom volume adjustment independent of system volume
 * Reliable countdown timer
+* Intermediate bells
 * Beautiful assortment of bell and gong sounds
 * Free and open-source software
 
@@ -50,14 +51,14 @@ This app will make use of all possible tricks to ensure it is reliable. What I f
 - Setting a system alarm with the highest possible priority
 - Starting a foreground service to keep the app running
 - Disabling battery optimization
-- (optional) Keep screen on
+- (optional) Keeping the screen on
 
 ## Planned features
 
 Things I'm planning to add in the near future:
 
-- Custom time selection
-- Optionally delay the start of the timer by a few seconds
+- ~~Custom time selection~~
+- ~~Optionally delay the start of the timer by a few seconds~~
 - Custom soundfiles loading
 - Dim screen on start
 
