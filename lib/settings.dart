@@ -114,7 +114,7 @@ class _SettingsWidgetState extends State<SettingsWidget> {
                   keyboardType: TextInputType.number,
                   selectAllOnFocus: true,
                   autovalidateMode: AutovalidateMode.onUserInteraction,
-                  validator: timeInputValidatorConstructor(minTimerTime: 1, maxTimerTime: 30) as Validator,
+                  validator: timeInputValidatorConstructor(minTimerTime: 0, maxTimerTime: 30) as Validator,
                   inputFormatters: [
                     FilteringTextInputFormatter.digitsOnly,
                   ],
@@ -179,7 +179,7 @@ class _SettingsWidgetState extends State<SettingsWidget> {
                             ],
                             borderColor: primaryColor,
                             errorColor: secondaryColor,
-                            helperText: 'Intervals time in minutes.',
+                            helperText: 'Interval time in minutes.',
                           ),
                           // Divider(
                           //   height: 1,

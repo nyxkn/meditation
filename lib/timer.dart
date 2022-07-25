@@ -20,6 +20,12 @@ import 'package:meditation/utils.dart';
 
 enum TimerState { stopped, delaying, meditating }
 
+const int endingNotificationID = 100;
+const int startingNotificationID = 101;
+// intervalNotification is also going to use up the next few numbers
+// reserve 200-299 for it
+const int intervalNotificationID = 200;
+
 class TimerWidget extends StatefulWidget {
   const TimerWidget({Key? key}) : super(key: key);
 
@@ -28,8 +34,7 @@ class TimerWidget extends StatefulWidget {
 }
 
 class _TimerWidgetState extends State<TimerWidget> with SingleTickerProviderStateMixin {
-  final int endingNotificationID = 100;
-  final int intervalNotificationID = 101;
+  final List<int> intervalNotificationIDs = [];
 
   late Ticker ticker;
 
@@ -73,10 +78,24 @@ class _TimerWidgetState extends State<TimerWidget> with SingleTickerProviderStat
           onTimerEnd();
         }
       }
-      if (receivedNotification.id == intervalNotificationID) {
+      if (intervalNotificationIDs.contains(receivedNotification.id)) {
         if (timerState == TimerState.meditating) {
           log.i("reached interval timer through displayedStream notification callback");
           onTimerInterval();
+          Timer(const Duration(seconds: 1), () {
+            log.i("dismissing interval notification");
+            AwesomeNotifications().dismiss(receivedNotification.id!);
+          });
+        }
+      }
+      if (receivedNotification.id == startingNotificationID) {
+        if (timerState == TimerState.delaying) {
+          log.i("reached starting timer through displayedStream notification callback");
+          onMeditationStart();
+          Timer(const Duration(seconds: 5), () {
+            log.i("dismissing start notification");
+            AwesomeNotifications().dismiss(startingNotificationID);
+          });
         }
       }
     });
@@ -105,6 +124,7 @@ class _TimerWidgetState extends State<TimerWidget> with SingleTickerProviderStat
     }
   }
 
+  // this function only gets called if the screen is on
   void timerUpdate(Duration elapsed) {
     if (timerState == TimerState.stopped) {
       return;
@@ -119,10 +139,10 @@ class _TimerWidgetState extends State<TimerWidget> with SingleTickerProviderStat
         timerButtonText = countdown.toString();
       });
 
-      if (elapsed.inSeconds > timerDelaySeconds - 1) {
-        // done delaying
-        onMeditationStart();
-      }
+      // if (elapsed.inSeconds > timerDelaySeconds - 1) {
+      //   // done delaying
+      //   onMeditationStart();
+      // }
     }
 
     if (timerState == TimerState.meditating) {
@@ -137,12 +157,12 @@ class _TimerWidgetState extends State<TimerWidget> with SingleTickerProviderStat
 
       var timeElapsed = DateTime.now().difference(startTime);
 
-      if (intervalsEnabled && intervalCount > 0) {
-        if (timeLeft <= intervalTime * intervalCount) {
-          intervalCount -= 1;
-          onTimerInterval();
-        }
-      }
+      // if (intervalsEnabled && intervalCount > 0) {
+      //   if (timeLeft <= intervalTime * intervalCount) {
+      //     intervalCount -= 1;
+      //     onTimerInterval();
+      //   }
+      // }
 
       // invlerp: t = (v-a) / (b-a);
       int vma = timeElapsed.inMilliseconds;
@@ -161,10 +181,9 @@ class _TimerWidgetState extends State<TimerWidget> with SingleTickerProviderStat
       // start
       if (await checkPermissions() == true) {
         timerDelaySeconds = int.parse(Settings.getValue<String>('delay-time') ?? '0');
-        ticker.start();
         onTimerStart();
 
-        if (timerDelaySeconds >= 1) {
+        if (timerDelaySeconds > 0) {
           // start delay
           timerState = TimerState.delaying;
           // onTimerStart() will be called at the end of the elapsed time
@@ -212,6 +231,7 @@ class _TimerWidgetState extends State<TimerWidget> with SingleTickerProviderStat
     AwesomeNotifications().dismiss(endingNotificationID);
 
     // unconditionally force screen wakelock for the delay part
+    // this won't prevent manual turn off of display, but will save us from a short screen-off time
     Wakelock.enable();
 
     if (Settings.getValue<bool>('dnd') == true) {
@@ -224,8 +244,12 @@ class _TimerWidgetState extends State<TimerWidget> with SingleTickerProviderStat
       log.i('enable background success: $backgroundSuccess');
     }
 
-    timeLeft = Duration(minutes: timerMinutes);
+    if (timerDelaySeconds > 0) {
+      await scheduleStartingNotification(timerDelaySeconds);
+    }
 
+    timeLeft = Duration(minutes: timerMinutes);
+    ticker.start();
   }
 
   // pretty much just the visual/aural part and the switch of state
@@ -261,7 +285,14 @@ class _TimerWidgetState extends State<TimerWidget> with SingleTickerProviderStat
           intervalCount -= 1;
         }
         log.d("interval count: $intervalCount");
-        // await scheduleIntervalNotification();
+        intervalNotificationIDs.clear();
+        for (var i = 1; i <= intervalCount; i++) {
+          var id = intervalNotificationID + i;
+          log.d(
+              "scheduling interval notification with id $id " + "in ${i * intervalTime.inMinutes}");
+          await scheduleIntervalNotification(i * intervalTime.inSeconds, id: id);
+          intervalNotificationIDs.add(id);
+        }
       }
     }
 
@@ -280,7 +311,7 @@ class _TimerWidgetState extends State<TimerWidget> with SingleTickerProviderStat
       }
     }
 
-    await scheduleEndingNotification();
+    await scheduleEndingNotification(timeLeft.inSeconds);
 
     NAudioPlayer audioPlayer = GetIt.I.get<NAudioPlayer>();
     audioPlayer.playSound('start-sound');
@@ -336,8 +367,9 @@ class _TimerWidgetState extends State<TimerWidget> with SingleTickerProviderStat
         log.i("dismissing end notification");
         AwesomeNotifications().dismiss(endingNotificationID);
       });
-      AwesomeNotifications().dismiss(intervalNotificationID);
     }
+
+    AwesomeNotifications().cancelSchedulesByGroupKey('timer-interval');
 
     NAudioPlayer audioPlayer = GetIt.I.get<NAudioPlayer>();
     if (playAudio) {
@@ -347,12 +379,13 @@ class _TimerWidgetState extends State<TimerWidget> with SingleTickerProviderStat
     }
   }
 
-  Future<void> scheduleEndingNotification() async {
+  Future<void> scheduleEndingNotification(int interval) async {
     String localTimeZone = await AwesomeNotifications().getLocalTimeZoneIdentifier();
     AwesomeNotifications().createNotification(
       content: NotificationContent(
         id: endingNotificationID,
-        channelKey: 'timer-end',
+        channelKey: 'timer-main',
+        groupKey: 'timer-end',
         title: 'Meditation ended',
         body: 'Tap to return to app',
         icon: 'resource://drawable/ic_notification',
@@ -365,17 +398,19 @@ class _TimerWidgetState extends State<TimerWidget> with SingleTickerProviderStat
         category: NotificationCategory.Event,
         // notificationLayout: NotificationLayout.Default,
         notificationLayout: NotificationLayout.BigPicture,
+        // criticalAlert: play sounds even when in dnd. likely only useful for ios
+        criticalAlert: true,
+        // autoDismissible: gets dismissed on tap
         autoDismissible: true,
+        // wakeUpScreen: wake up screen even when locked
         wakeUpScreen: true,
+        // fullScreenIntent: show notification in fullscreen even from locked
         // fullScreenIntent keeps showing the notification popup permanently until user dismisses it
         // so we will dismiss this automatically after a few seconds
         fullScreenIntent: true,
       ),
       schedule: NotificationInterval(
-          interval: timeLeft.inSeconds,
-          timeZone: localTimeZone,
-          allowWhileIdle: true,
-          preciseAlarm: true),
+          interval: interval, timeZone: localTimeZone, allowWhileIdle: true, preciseAlarm: true),
       // actionButtons: [
       //   NotificationActionButton(
       //     key: 'dismiss',
@@ -386,28 +421,49 @@ class _TimerWidgetState extends State<TimerWidget> with SingleTickerProviderStat
     );
   }
 
-  Future<void> scheduleIntervalNotification() async {
+  Future<void> scheduleStartingNotification(int interval) async {
     String localTimeZone = await AwesomeNotifications().getLocalTimeZoneIdentifier();
     AwesomeNotifications().createNotification(
       content: NotificationContent(
-        id: intervalNotificationID,
-        channelKey: 'timer-interval',
+        id: startingNotificationID,
+        channelKey: 'timer-support',
+        groupKey: 'timer-start',
+        title: 'Meditation started',
+        body: 'Tap to return to app',
+        icon: 'resource://drawable/ic_notification',
+        largeIcon: 'resource://mipmap/ic_launcher',
+        category: NotificationCategory.Event,
+        notificationLayout: NotificationLayout.BigPicture,
+        criticalAlert: false,
+        autoDismissible: true,
+        wakeUpScreen: false,
+        fullScreenIntent: false,
+      ),
+      schedule: NotificationInterval(
+          interval: interval, timeZone: localTimeZone, allowWhileIdle: true, preciseAlarm: true),
+    );
+  }
+
+  Future<void> scheduleIntervalNotification(int interval, {int id = intervalNotificationID}) async {
+    String localTimeZone = await AwesomeNotifications().getLocalTimeZoneIdentifier();
+    AwesomeNotifications().createNotification(
+      content: NotificationContent(
+        id: id,
+        channelKey: 'timer-support',
+        groupKey: 'timer-interval',
         title: 'Meditation interval',
         body: 'Tap to return to app',
         icon: 'resource://drawable/ic_notification',
         largeIcon: 'resource://mipmap/ic_launcher',
         category: NotificationCategory.Event,
         notificationLayout: NotificationLayout.BigPicture,
+        criticalAlert: true,
         autoDismissible: true,
         wakeUpScreen: true,
         fullScreenIntent: false,
       ),
       schedule: NotificationInterval(
-          interval: intervalTime.inSeconds,
-          timeZone: localTimeZone,
-          repeats: true,
-          allowWhileIdle: true,
-          preciseAlarm: true),
+          interval: interval, timeZone: localTimeZone, allowWhileIdle: true, preciseAlarm: true),
     );
   }
 
@@ -529,7 +585,8 @@ class _TimerWidgetState extends State<TimerWidget> with SingleTickerProviderStat
                         FilteringTextInputFormatter.digitsOnly,
                         FilteringTextInputFormatter.deny(RegExp(r"^0")),
                       ],
-                      validator: timeInputValidatorConstructor(minTimerTime: 1, maxTimerTime: 60) as Validator,
+                      validator: timeInputValidatorConstructor(minTimerTime: 1, maxTimerTime: 60)
+                          as Validator,
                       decoration: InputDecoration(
                         helperText: "Input time in minutes.",
                         errorMaxLines: 3,

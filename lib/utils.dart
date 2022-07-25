@@ -4,6 +4,7 @@ import 'package:intl/intl.dart';
 import 'package:logger/logger.dart';
 
 final primaryColor = Colors.indigoAccent[100];
+// we use this as our shade of red for errors
 final secondaryColor = Colors.redAccent[100];
 
 typedef Validator = String? Function(String?);

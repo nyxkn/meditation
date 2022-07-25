@@ -56,11 +56,13 @@ Future<void> initNotifications() async {
   // forceUpdate throws an exception. not sure how to use it. check github issues
   await AwesomeNotifications().setChannel(
       NotificationChannel(
-        channelKey: 'timer-end',
-        channelName: 'Timer end',
-        channelDescription: 'Notifications displayed at the end of meditation',
-        defaultColor: Colors.red,
+        channelKey: 'timer-main',
+        channelName: 'Timer',
+        channelDescription: 'Critical notifications displayed during meditation',
+        defaultColor: secondaryColor,
         importance: NotificationImportance.Max,
+        // this enables critical alerts
+        criticalAlerts: true,
         playSound: false,
         enableVibration: false,
       ),
@@ -68,11 +70,16 @@ Future<void> initNotifications() async {
 
   await AwesomeNotifications().setChannel(
       NotificationChannel(
-        channelKey: 'timer-interval',
-        channelName: 'Timer interval',
-        channelDescription: 'Interval notifications displayed during the meditation',
-        defaultColor: Colors.red,
-        importance: NotificationImportance.Max,
+        channelKey: 'timer-support',
+        channelName: 'Timer Support',
+        channelDescription: 'Secondary notifications displayed during the meditation',
+        defaultColor: secondaryColor,
+        // urgent: makes sound and appears as heads up
+        // high/default: makes sound
+        // medium/low: no sound
+        // min: no sound and does not appear in status bar
+        importance: NotificationImportance.Min,
+        criticalAlerts: true,
         playSound: false,
         enableVibration: false,
       ),
