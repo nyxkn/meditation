@@ -198,7 +198,7 @@ class _TimerWidgetState extends State<TimerWidget> with SingleTickerProviderStat
       return;
     }
 
-    log.d("played interval sound at $timeLeft");
+    log.d("playing interval sound at $timeLeft");
 
     NAudioPlayer audioPlayer = GetIt.I.get<NAudioPlayer>();
     audioPlayer.playSound('interval-sound');
@@ -211,10 +211,8 @@ class _TimerWidgetState extends State<TimerWidget> with SingleTickerProviderStat
     // probably no need to fix that
     AwesomeNotifications().dismiss(endingNotificationID);
 
-    if (Settings.getValue<bool>('screen-wakelock') == true) {
-      log.i('enabling screen wakelock');
-      Wakelock.enable();
-    }
+    // unconditionally force screen wakelock for the delay part
+    Wakelock.enable();
 
     if (Settings.getValue<bool>('dnd') == true) {
       log.i('enabling dnd');
@@ -226,7 +224,8 @@ class _TimerWidgetState extends State<TimerWidget> with SingleTickerProviderStat
       log.i('enable background success: $backgroundSuccess');
     }
 
-    await scheduleEndingNotification();
+    timeLeft = Duration(minutes: timerMinutes);
+
   }
 
   // pretty much just the visual/aural part and the switch of state
@@ -266,6 +265,23 @@ class _TimerWidgetState extends State<TimerWidget> with SingleTickerProviderStat
       }
     }
 
+    bool wakelockEnabled = await Wakelock.enabled;
+    if (Settings.getValue<bool>('screen-wakelock') == true) {
+      if (wakelockEnabled) {
+        // wakelock was already setup in onTimerStart
+        log.i('maintaining screen wakelock for meditation');
+      } else {
+        log.e('wakelock is not enabled but was supposed to be');
+      }
+    } else {
+      log.i('disabling screen wakelock for meditation');
+      if (wakelockEnabled) {
+        Wakelock.disable();
+      }
+    }
+
+    await scheduleEndingNotification();
+
     NAudioPlayer audioPlayer = GetIt.I.get<NAudioPlayer>();
     audioPlayer.playSound('start-sound');
 
@@ -283,18 +299,20 @@ class _TimerWidgetState extends State<TimerWidget> with SingleTickerProviderStat
       return;
     }
 
-    // removing 'meditation started' snackbar in case it's still showing
-    ScaffoldMessenger.of(context).removeCurrentSnackBar();
+    setState(() {
+      // one last update so we know how much we were off on timeout
+      if (timerState == TimerState.meditating) {
+        timeLeft = timeLeftTo(endTime);
+        log.d("ending meditation at timeLeft: $timeLeft");
+      }
+      timerButtonText = "begin";
+    });
 
     timerState = TimerState.stopped;
     ticker.stop();
 
-    setState(() {
-      // one last update so we know how much we were off on timeout
-      timeLeft = timeLeftTo(endTime);
-      log.d("ending meditation at timeLeft: $timeLeft");
-      timerButtonText = "begin";
-    });
+    // removing 'meditation started' snackbar in case it's still showing
+    ScaffoldMessenger.of(context).removeCurrentSnackBar();
 
     Wakelock.disable();
 

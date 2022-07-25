@@ -16,7 +16,7 @@ Function timeInputValidatorConstructor({minTimerTime = 1, maxTimerTime = 60}) {
         return null;
       }
     }
-    return "Interval time should be a number between $minTimerTime and $maxTimerTime";
+    return "Interval time should be a number between $minTimerTime and $maxTimerTime.";
   }
 
   return validator;
