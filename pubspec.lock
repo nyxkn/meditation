@@ -135,9 +135,11 @@ packages:
   flutter_settings_screens:
     dependency: "direct main"
     description:
-      path: "/home/nyxkn/apps/flutter-projects/flutter_settings_screens"
-      relative: false
-    source: path
+      path: "."
+      ref: dev
+      resolved-ref: "8ef69638397a8c8f47a976a897f97aae1e1f625c"
+      url: "https://github.com/nyxkn/flutter_settings_screens.git"
+    source: git
     version: "0.3.3-null-safety+1"
   flutter_test:
     dependency: "direct dev"

@@ -511,7 +511,7 @@ class _TimerWidgetState extends State<TimerWidget> with SingleTickerProviderStat
                         FilteringTextInputFormatter.digitsOnly,
                         FilteringTextInputFormatter.deny(RegExp(r"^0")),
                       ],
-                      validator: timeInputValidatorConstructor() as Validator,
+                      validator: timeInputValidatorConstructor(minTimerTime: 1, maxTimerTime: 60) as Validator,
                       decoration: InputDecoration(
                         helperText: "Input time in minutes.",
                         errorMaxLines: 3,
@@ -594,7 +594,7 @@ class _TimerWidgetState extends State<TimerWidget> with SingleTickerProviderStat
       children: [
         if (Settings.getValue<bool>('show-countdown') == true)
           Align(
-              alignment: Alignment(0, -0.75),
+              alignment: Alignment(0, -0.70),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
@@ -639,7 +639,7 @@ class _TimerWidgetState extends State<TimerWidget> with SingleTickerProviderStat
           ),
         ),
         Align(
-          alignment: Alignment(0, 0.78),
+          alignment: Alignment(0, 0.75),
           child: TextButton(
             style: timeSelectionButtonStyle,
             onPressed: () {
