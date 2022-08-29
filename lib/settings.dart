@@ -4,7 +4,6 @@ import 'package:flutter/services.dart';
 
 import 'package:flutter_dnd/flutter_dnd.dart';
 import 'package:flutter_settings_screens/flutter_settings_screens.dart';
-import 'package:flutter_settings_screens/src/utils/widget_utils.dart' as flutter_settings_screen;
 import 'package:get_it/get_it.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 
@@ -51,12 +50,6 @@ class _SettingsWidgetState extends State<SettingsWidget> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Settings'),
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          print('pressed');
-          Settings.setValue<bool>('screen-wakelock', false);
-        },
       ),
       body: Center(
         // child: Column(

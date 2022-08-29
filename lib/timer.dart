@@ -242,7 +242,6 @@ class _TimerWidgetState extends State<TimerWidget> with SingleTickerProviderStat
     timerState = TimerState.meditating;
 
     setState(() {
-      print("setstate ontimerstart");
       timerButtonText = "end";
     });
 
@@ -290,8 +289,8 @@ class _TimerWidgetState extends State<TimerWidget> with SingleTickerProviderStat
         log.e('wakelock is not enabled but was supposed to be');
       }
     } else {
-      log.i('disabling screen wakelock for meditation');
       if (wakelockEnabled) {
+        log.i('disabling screen wakelock for meditation');
         Wakelock.disable();
       }
     }

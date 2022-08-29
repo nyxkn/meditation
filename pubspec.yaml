@@ -37,7 +37,7 @@ dependencies:
   flutter_background: ^1.1.0 # foreground_service, wake_lock
   flutter_dnd: ^0.1.4+1
 #  flutter_foreground_task: ^3.5.5
-#  flutter_settings_screens: ^0.3.2-null-safety
+  flutter_settings_screens: ^0.3.3-null-safety
   get_it: ^7.2.0
   logger: ^1.1.0
 #  permission_handler: ^8.3.0
@@ -46,11 +46,11 @@ dependencies:
   wakelock: ^0.6.1+1
   package_info_plus: ^1.4.0
 
-  flutter_settings_screens:
-#    path: /home/nyxkn/apps/flutter-projects/flutter_settings_screens
-    git:
-      url: https://github.com/nyxkn/flutter_settings_screens.git
-      ref: dev
+#  flutter_settings_screens:
+##    path: /home/nyxkn/apps/flutter-projects/flutter_settings_screens
+#    git:
+#      url: https://github.com/nyxkn/flutter_settings_screens.git
+#      ref: dev
 
 
 dev_dependencies:
