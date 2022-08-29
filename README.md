@@ -1,6 +1,7 @@
 # Meditation
 
 <img width=200 src="media/logo-wide.png"><img>
+<!-- <img height=64 src="media/icon-playstore-512px.png"><img> -->
 
 This is a meditation timer. Minimalistic, reliable, and truly elegant.
 

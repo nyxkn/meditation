@@ -109,21 +109,6 @@ class _TimerWidgetState extends State<TimerWidget> with SingleTickerProviderStat
     super.dispose();
   }
 
-  String formatSeconds(int seconds) {
-    int mm = seconds ~/ 60;
-    int ss = seconds % 60;
-    return mm.toString().padLeft(2, '0') + ':' + ss.toString().padLeft(2, '0');
-  }
-
-  String formatDuration(Duration d) {
-    String formattedString = d.toString().split('.').first.substring(2);
-    if (d.isNegative) {
-      return '-$formattedString';
-    } else {
-      return formattedString;
-    }
-  }
-
   // this function only gets called if the screen is on
   void timerUpdate(Duration elapsed) {
     if (timerState == TimerState.stopped) {
@@ -585,11 +570,12 @@ class _TimerWidgetState extends State<TimerWidget> with SingleTickerProviderStat
                         FilteringTextInputFormatter.digitsOnly,
                         FilteringTextInputFormatter.deny(RegExp(r"^0")),
                       ],
-                      validator: timeInputValidatorConstructor(minTimerTime: 1, maxTimerTime: 60)
+                      validator: timeInputValidatorConstructor(minTimerTime: 1, maxTimerTime: maxMeditationTime)
                           as Validator,
                       decoration: InputDecoration(
-                        helperText: "Input time in minutes.",
+                        helperText: "Input time in minutes, between 1 and $maxMeditationTime.",
                         errorMaxLines: 3,
+                        helperMaxLines: 3,
                         errorStyle: TextStyle(
                           color: errorColor,
                         ),

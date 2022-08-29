@@ -3,9 +3,21 @@ import 'package:intl/intl.dart';
 
 import 'package:logger/logger.dart';
 
+// ========================================
+// globals
+// ========================================
+
+const maxMeditationTime = 300;
+
 final primaryColor = Colors.indigoAccent[100];
 // we use this as our shade of red for errors
 final secondaryColor = Colors.redAccent[100];
+
+
+// ========================================
+// utilities
+// ========================================
+
 
 typedef Validator = String? Function(String?);
 
@@ -54,3 +66,53 @@ var log = Logger(
       ),
   output: null, // Use the default LogOutput (-> send everything to console)
 );
+
+
+List<int> getDurationNumbers(Duration d) {
+  var microseconds = d.inMicroseconds;
+  var microsecondsPerHour = Duration.microsecondsPerHour;
+  var microsecondsPerMinute = Duration.microsecondsPerMinute;
+  var microsecondsPerSecond = Duration.microsecondsPerSecond;
+
+  var hours = microseconds ~/ microsecondsPerHour;
+  microseconds = microseconds.remainder(microsecondsPerHour);
+
+  // if (microseconds < 0) microseconds = -microseconds;
+
+  var minutes = microseconds ~/ microsecondsPerMinute;
+  microseconds = microseconds.remainder(microsecondsPerMinute);
+
+  // var minutesPadding = minutes < 10 ? "0" : "";
+
+  var seconds = microseconds ~/ microsecondsPerSecond;
+  microseconds = microseconds.remainder(microsecondsPerSecond);
+
+  // var secondsPadding = seconds < 10 ? "0" : "";
+  //
+  // var paddedMicroseconds = microseconds.toString().padLeft(6, "0");
+  // return "$hours:"
+  //     "$minutesPadding$minutes:"
+  //     "$secondsPadding$seconds.$paddedMicroseconds";
+
+  return [hours, minutes, seconds];
+}
+
+String formatSeconds(int seconds) {
+  int mm = seconds ~/ 60;
+  int ss = seconds % 60;
+  return mm.toString().padLeft(2, '0') + ':' + ss.toString().padLeft(2, '0');
+}
+
+String formatDuration(Duration d) {
+  var formattedString = d.toString().split('.').first;
+  if (formattedString[0] == '0') {
+    // if we have 0 hours, remove hours
+    formattedString = formattedString.substring(2);
+  }
+
+  if (d.isNegative) {
+    return '-$formattedString';
+  } else {
+    return formattedString;
+  }
+}
