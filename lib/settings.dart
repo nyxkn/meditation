@@ -200,8 +200,9 @@ class _SettingsWidgetState extends State<SettingsWidget> {
               ],
             ),
             SettingsGroup(
-              title: 'info',
+              title: 'Info',
               children: [
+                SizedBox(height: 16),
                 SimpleSettingsTile(
                   title: 'About',
                   subtitle: 'Licences and other information',
@@ -220,7 +221,7 @@ class _SettingsWidgetState extends State<SettingsWidget> {
             ),
             if (!kReleaseMode)
               SettingsGroup(
-                title: 'debug',
+                title: 'Debug',
                 children: [],
               ),
           ],
