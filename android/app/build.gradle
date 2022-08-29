@@ -99,7 +99,7 @@ configurations.all {
 }
 
 dependencies {
-    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
 
     // make sure we use a recent enough version or WorkManager to avoid an IllegalArgumentException
     // https://developer.android.com/jetpack/androidx/releases/work#declaring_dependencies
