@@ -50,5 +50,6 @@ app.*.map.json
 /assets/temp
 /assets-source
 /builds
+/builds-bundle
 /media/temp
 /scripts

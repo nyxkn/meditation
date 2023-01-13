@@ -6,20 +6,28 @@
 This is a meditation timer. Minimalistic, reliable, and truly elegant.
 
 [<img src="https://fdroid.gitlab.io/artwork/badge/get-it-on.png"
-     alt="Get it on F-Droid"
-     height="80">](https://f-droid.org/packages/com.nyxkn.meditation/)
+    alt="Get it on F-Droid"
+    height="80">](https://f-droid.org/packages/com.nyxkn.meditation/)
      
+[<img src="https://play.google.com/intl/en_us/badges/static/images/badges/en_badge_web_generic.png"
+    alt="Get it on Google Play"
+    height="80">](https://play.google.com/store/apps/details?id=com.nyxkn.meditation)
+
+Or download the APK directly from GitHub:
+
+- **[Latest release](https://github.com/nyxkn/meditation/releases/latest)**
+
 ![Shield: GitHub version](https://img.shields.io/github/v/release/nyxkn/meditation)
 ![Shield: F-droid version](https://img.shields.io/f-droid/v/com.nyxkn.meditation)
 
 ## Features
 
 * Simple, elegant, and intuitive
-* No distractions; only the essential features
-* Custom volume adjustment independent of system volume
+* No distractions - only the essential features
+* Custom volume adjustment
 * Reliable countdown timer
-* Intermediate bells
 * Beautiful assortment of bell and gong sounds
+* Intermediate intervals
 * Free and open-source software
 
 ## Screenshots
