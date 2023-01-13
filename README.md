@@ -1,12 +1,12 @@
 # Meditation
 
+![Shield: GitHub version](https://img.shields.io/github/v/release/nyxkn/meditation)
+![Shield: F-droid version](https://img.shields.io/f-droid/v/com.nyxkn.meditation)
+
 <img width=200 src="media/logo-wide.png"><img>
 <!-- <img height=64 src="media/icon-playstore-512px.png"><img> -->
 
 This is a meditation timer. Minimalistic, reliable, and truly elegant.
-
-![Shield: GitHub version](https://img.shields.io/github/v/release/nyxkn/meditation)
-![Shield: F-droid version](https://img.shields.io/f-droid/v/com.nyxkn.meditation)
 
 [<img src="https://fdroid.gitlab.io/artwork/badge/get-it-on.png"
     alt="Get it on F-Droid"
@@ -32,9 +32,9 @@ Or download the APK directly from GitHub:
 
 ## Screenshots
 
-<a href="media/screenshot-timer.png?raw=true"><img width=135 src="media/screenshots/main.png"></a>
+<a href="media/screenshot-timer.png?raw=true"><img width=180 src="media/screenshots/main.png"></a>
 &nbsp;
-<a href="media/screenshot-settings.png?raw=true"><img width=135 src="media/screenshots/settings.png"></a>
+<a href="media/screenshot-settings.png?raw=true"><img width=180 src="media/screenshots/settings.png"></a>
 
 ## Description
 
