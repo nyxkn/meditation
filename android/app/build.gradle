@@ -103,17 +103,26 @@ configurations.all {
 
 dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
+}
 
-    // make sure we use a recent enough version or WorkManager to avoid an IllegalArgumentException
-    // https://developer.android.com/jetpack/androidx/releases/work#declaring_dependencies
-    // 2.7.1 is the most recent stable release at the time of writing this
 
-//    def work_version = "2.7.1"
-//
-//    // (Java only)
-//    implementation "androidx.work:work-runtime:$work_version"
-//
-//    // Kotlin + coroutines
-//    implementation "androidx.work:work-runtime-ktx:$work_version"
-//
+
+// by default we get arm 1000 + version, arm64 2000, x86_64 4000
+// this changes the scheme to version * 100
+// +1 for x86_64, +2 for arm, +3 for arm64, e.g. 1103 is version 11 arm64
+
+// code from here: https://developer.android.com/studio/build/configure-apk-splits#configure-APK-versions
+// more versioning ideas: https://developer.android.com/google/play/publishing/multiple-apks#VersionCodes
+
+ext.abiCodes = ['x86_64': 1, 'armeabi-v7a': 2, 'arm64-v8a': 3]
+
+import com.android.build.OutputFile
+
+android.applicationVariants.all { variant ->
+    variant.outputs.each { output ->
+        def baseAbiVersionCode = project.ext.abiCodes.get(output.getFilter(OutputFile.ABI))
+        if (baseAbiVersionCode != null) {
+            output.versionCodeOverride = variant.versionCode * 100 + baseAbiVersionCode
+        }
+    }
 }
