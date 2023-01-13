@@ -5,6 +5,9 @@
 
 This is a meditation timer. Minimalistic, reliable, and truly elegant.
 
+![Shield: GitHub version](https://img.shields.io/github/v/release/nyxkn/meditation)
+![Shield: F-droid version](https://img.shields.io/f-droid/v/com.nyxkn.meditation)
+
 [<img src="https://fdroid.gitlab.io/artwork/badge/get-it-on.png"
     alt="Get it on F-Droid"
     height="80">](https://f-droid.org/packages/com.nyxkn.meditation/)
@@ -16,9 +19,6 @@ This is a meditation timer. Minimalistic, reliable, and truly elegant.
 Or download the APK directly from GitHub:
 
 - **[Latest release](https://github.com/nyxkn/meditation/releases/latest)**
-
-![Shield: GitHub version](https://img.shields.io/github/v/release/nyxkn/meditation)
-![Shield: F-droid version](https://img.shields.io/f-droid/v/com.nyxkn.meditation)
 
 ## Features
 
@@ -32,9 +32,9 @@ Or download the APK directly from GitHub:
 
 ## Screenshots
 
-<a href="media/screenshot-timer.png?raw=true"><img width=162 src="media/screenshot-timer.png"></a>
+<a href="media/screenshot-timer.png?raw=true"><img width=135 src="media/screenshots/main.png"></a>
 &nbsp;
-<a href="media/screenshot-settings.png?raw=true"><img width=162 src="media/screenshot-settings.png"></a>
+<a href="media/screenshot-settings.png?raw=true"><img width=135 src="media/screenshots/settings.png"></a>
 
 ## Description
 
