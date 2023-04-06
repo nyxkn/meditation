@@ -1,12 +1,9 @@
 # Meditation
 
-![Shield: GitHub version](https://img.shields.io/github/v/release/nyxkn/meditation)
-![Shield: F-droid version](https://img.shields.io/f-droid/v/com.nyxkn.meditation)
-
 <img width=200 src="media/logo-wide.png"><img>
 <!-- <img height=64 src="media/icon-playstore-512px.png"><img> -->
 
-This is a meditation timer. Minimalistic, reliable, and truly elegant.
+*This is a meditation timer. Minimalistic, reliable, and truly elegant.*
 
 [<img src="https://fdroid.gitlab.io/artwork/badge/get-it-on.png"
     alt="Get it on F-Droid"
@@ -21,6 +18,9 @@ Or download the APK directly from GitHub:
 - **[Latest release](https://github.com/nyxkn/meditation/releases/latest)**
 
 ## Features
+
+![Shield: GitHub version](https://img.shields.io/github/v/release/nyxkn/meditation)
+![Shield: F-droid version](https://img.shields.io/f-droid/v/com.nyxkn.meditation)
 
 * Simple, elegant, and intuitive
 * No distractions - only the essential features
@@ -47,6 +47,22 @@ This is achieved by starting a foreground service and disabling battery optimiza
 
 Reliability is of extreme importance to a meditation tool in order to eliminate all possible worries about the timer not behaving correctly. Just press the button and start!
 
+## Donations
+
+If you find this project helpful and you feel like it, throw me some coins!
+
+And drop a [star](stargazers) on this repo :)
+
+[![Buy me a coffee](https://img.shields.io/badge/buy%20me%20a%20coffee-FFDD00?style=for-the-badge&logo=buymeacoffee&logoColor=black)](https://www.buymeacoffee.com/nyxkn)
+
+[![Liberapay](https://img.shields.io/badge/donate-liberapay-F6C915?style=for-the-badge&logo=liberapay&logoColor=)](https://liberapay.com/nyxkn)
+
+[![Support me on ko-fi](https://img.shields.io/badge/support%20me%20on%20ko--fi-FF5E5B?style=for-the-badge&logo=kofi&logoColor=black)](https://ko-fi.com/nyxkn)
+
+[![Paypal](https://img.shields.io/badge/donate-paypal-00457C?style=for-the-badge&logo=paypal&logoColor=)](https://paypal.me/nicolasiagri)
+
+Bitcoin: bc1qfu5gk78898zdcxw372unmwua0yd5luf3z60sgq
+
 ## Technical notes
 
 An important feature to implement was to have the volume of the notification bells be consistent and reliable.
@@ -61,15 +77,6 @@ This app will make use of all possible tricks to ensure it is reliable. What I f
 - Starting a foreground service to keep the app running
 - Disabling battery optimization
 - (optional) Keeping the screen on
-
-## Planned features
-
-Things I'm planning to add in the near future:
-
-- ~~Custom time selection~~
-- ~~Optionally delay the start of the timer by a few seconds~~
-- Custom soundfiles loading
-- Dim screen on start
 
 ## Credits
 
