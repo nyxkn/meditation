@@ -13,46 +13,18 @@ import 'package:meditation/settings.dart';
 import 'package:meditation/timer.dart';
 import 'package:meditation/utils.dart';
 
+// on the very first call to initialize, android will ask to allow notifications
+// there is no way to retrigger this popup, and instead you'll have to redirect user to the settings
+// so call init once on first start
+// then have a function to check notifications
+// and if notifications aren't enabled, show information popup and redirect to settings
 Future<void> initNotifications() async {
   // initialize and set a default channel
   bool success = await AwesomeNotifications().initialize(
-      // set the icon to null if you want to use the default app icon
-      //   'resource://drawable/res_app_icon',
-      null,
-      [
-        NotificationChannel(
-            channelGroupKey: 'default-channel-group',
-            channelKey: 'default-channel',
-            channelName: 'Default notification channel',
-            channelDescription: 'Basic notifications',
-            defaultColor: Color(0xFF9D50DD),
-            // medium purple
-            ledColor: Colors.white)
-      ],
-      // Channel groups are only visual and are not required
-      channelGroups: [
-        NotificationChannelGroup(
-            channelGroupkey: 'default-channel-group', channelGroupName: 'Default group')
-      ],
-      debug: true);
-  log.i('awesome_notifications init: success = $success');
-
-  await AwesomeNotifications().isNotificationAllowed().then((isAllowed) {
-    if (!isAllowed) {
-      log.i('awesome_notifications: asking for permission');
-      // This is just a basic example. For real apps, you must show some
-      // friendly dialog box before call the request method.
-      // This is very important to not harm the user experience
-      // AwesomeNotifications().requestPermissionToSendNotifications();
-      AwesomeNotifications().requestPermissionToSendNotifications(permissions: [
-        NotificationPermission.Alert,
-        NotificationPermission.Sound,
-      ]);
-    }
-  });
-
-  // forceUpdate throws an exception. not sure how to use it. check github issues
-  await AwesomeNotifications().setChannel(
+    // set the icon to null if you want to use the default app icon
+    //   'resource://drawable/res_app_icon',
+    null,
+    [
       NotificationChannel(
         channelKey: 'timer-main',
         channelName: 'Timer',
@@ -64,9 +36,6 @@ Future<void> initNotifications() async {
         playSound: false,
         enableVibration: false,
       ),
-      forceUpdate: false);
-
-  await AwesomeNotifications().setChannel(
       NotificationChannel(
         channelKey: 'timer-support',
         channelName: 'Timer Support',
@@ -81,7 +50,15 @@ Future<void> initNotifications() async {
         playSound: false,
         enableVibration: false,
       ),
-      forceUpdate: false);
+    ],
+    // Channel groups are only visual and are not required
+    // channelGroups: [
+    //   NotificationChannelGroup(
+    //       channelGroupkey: 'default-channel-group', channelGroupName: 'Default group')
+    // ],
+    // debug: true
+  );
+  log.i('awesome_notifications init: success = $success');
 }
 
 Future<void> initFlutterBackground() async {
@@ -158,8 +135,6 @@ void main() async {
   GetIt.I.registerSingleton<Logger>(Logger());
 
   await Settings.init();
-  // await initFlutterBackground();
-  await initNotifications();
 
   await initDefaultSettings();
   await initDefaultPrefs();
@@ -244,6 +219,8 @@ class Home extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    WidgetsBinding.instance.addPostFrameCallback((_) => afterBuild(context));
+
     return Scaffold(
       appBar: AppBar(
         title: Text('Meditation Timer'),
@@ -265,5 +242,11 @@ class Home extends StatelessWidget {
         child: TimerWidget(),
       ),
     );
+  }
+
+  void afterBuild(context) async {
+    await Future.delayed(Duration(milliseconds: 500));
+    // this will ask for permission if first app run
+    initNotifications();
   }
 }

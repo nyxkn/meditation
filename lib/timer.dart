@@ -163,22 +163,41 @@ class _TimerWidgetState extends State<TimerWidget> with SingleTickerProviderStat
 
   void onTimerButtonPress() async {
     if (timerState == TimerState.stopped) {
-      // start
-      if (await checkPermissions() == true) {
-        timerDelaySeconds = int.parse(Settings.getValue<String>('delay-time') ?? '0');
-        onTimerStart();
+      // start pressed
 
-        if (timerDelaySeconds > 0) {
-          // start delay
-          timerState = TimerState.delaying;
-          // onTimerStart() will be called at the end of the elapsed time
-        } else {
-          // start meditation
-          onMeditationStart();
-        }
+      // this only checks whether notifications are allowed for the app at all
+      // it's probably all you need for android (not sure about ios)
+      // but in any case it doesn't hurt to be precise with what's missing
+      // var notificationsOkay = await AwesomeNotifications().isNotificationAllowed();
+      var missingPermissions = await checkMissingNotificationPermissions();
+      if (missingPermissions.length != 0) {
+        forceRequestNotifications(context, missingPermissions);
+        return;
+      }
+
+      var backgroundPermissionOkay = await FlutterBackground.hasPermissions;
+      if (!backgroundPermissionOkay) {
+        requestBackgroundPermission(context);
+        return;
+      }
+
+      // all permissions are good. start!
+
+      await initFlutterBackground();
+
+      timerDelaySeconds = int.parse(Settings.getValue<String>('delay-time') ?? '0');
+      onTimerStart();
+
+      if (timerDelaySeconds > 0) {
+        // start delay
+        timerState = TimerState.delaying;
+        // onTimerStart() will be called at the end of the elapsed time
+      } else {
+        // start meditation
+        onMeditationStart();
       }
     } else {
-      // manual stop
+      // stop pressed
       if (timerDelaySeconds == 0 && DateTime.now().difference(startTime).inSeconds < 1) {
         // prevent accidental double tap
         // but not if coming from the delayed start
@@ -451,56 +470,6 @@ class _TimerWidgetState extends State<TimerWidget> with SingleTickerProviderStat
     );
   }
 
-  Future<bool> checkPermissions() async {
-    if (Platform.isAndroid) {
-      // checking and asking permissions for flutter_background
-      bool hasPermissions = await FlutterBackground.hasPermissions;
-      if (!hasPermissions) {
-        await showDialog(
-          context: context,
-          barrierDismissible: false,
-          builder: (_) => AlertDialog(
-            title: Text("Permission required"),
-            // removing bottom padding from contentPadding. looks better.
-            // contentPadding defaults: https://api.flutter.dev/flutter/material/AlertDialog/contentPadding.html
-            contentPadding: EdgeInsets.fromLTRB(24, 20, 24, 0),
-            content: SingleChildScrollView(
-              child: Column(
-                children: [
-                  Text(
-                      "On the next screen you'll be asked to allow the app to run in the background.\n"),
-                  Text(
-                      "This is to ensure the timer can work reliably even when the app isn't focused or when the screen turns off.\n"),
-                  // Text("This feature will only be used when the timer is running."),
-                ],
-              ),
-            ),
-            actions: [
-              TextButton(
-                child: Text("OK"),
-                onPressed: () async {
-                  Navigator.of(context).pop();
-                  // this init call is just to ask for permission
-                  await initFlutterBackground();
-                },
-              ),
-            ],
-          ),
-        );
-
-        // doesn't matter whether we were granted permission or not.
-        // we do not start the timer. we wait for a new press instead.
-        return false;
-      } else {
-        // if we do have permissions, go ahead and initialize without worry of permission being asked again
-        await initFlutterBackground();
-      }
-    }
-
-    // return true if there were no permissions to check
-    return true;
-  }
-
   Future<void> showTimeChoice() async {
     var minutes;
     var timeChoices = [5, 10, 15, 20, 25, 30, 45, 60];
@@ -569,8 +538,8 @@ class _TimerWidgetState extends State<TimerWidget> with SingleTickerProviderStat
                         FilteringTextInputFormatter.digitsOnly,
                         FilteringTextInputFormatter.deny(RegExp(r"^0")),
                       ],
-                      validator: timeInputValidatorConstructor(minTimerTime: 1, maxTimerTime: maxMeditationTime)
-                          as Validator,
+                      validator: timeInputValidatorConstructor(
+                          minTimerTime: 1, maxTimerTime: maxMeditationTime) as Validator,
                       decoration: InputDecoration(
                         helperText: "Input time in minutes, between 1 and $maxMeditationTime.",
                         errorMaxLines: 3,
