@@ -19,8 +19,8 @@ Or download the APK directly from GitHub:
 
 ## Features
 
-![Shield: GitHub version](https://img.shields.io/github/v/release/nyxkn/meditation)
-![Shield: F-droid version](https://img.shields.io/f-droid/v/com.nyxkn.meditation)
+![Shield: GitHub version](https://img.shields.io/github/v/release/nyxkn/meditation?style=for-the-badge&logo=github)
+![Shield: F-droid version](https://img.shields.io/f-droid/v/com.nyxkn.meditation?style=for-the-badge&logo=fdroid)
 
 * Simple, elegant, and intuitive
 * No distractions - only the essential features
