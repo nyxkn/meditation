@@ -15,6 +15,7 @@ import 'package:logger/logger.dart';
 const maxMeditationTime = 300;
 
 final primaryColor = Colors.indigoAccent[100];
+const darkGray = Color(0xFF121212);
 // we use this as our shade of red for errors
 final secondaryColor = Colors.redAccent[100];
 

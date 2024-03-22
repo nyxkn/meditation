@@ -149,21 +149,17 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Meditation Timer',
+      themeMode: ThemeMode.dark,
       theme: ThemeData(
-          colorScheme: ColorScheme.dark().copyWith(
-            // primary: Colors.indigoAccent[100];
-            // primary: Colors.redAccent[100],
-            // primary: Colors.deepPurpleAccent[100], // this seems to be close to the default
-            primary: primaryColor,
-            background: Colors.black,
-            surface: Colors.black,
-            secondary: primaryColor,
-          ),
-          scaffoldBackgroundColor: Color(0xFF121212),
-          // scaffoldBackgroundColor: Colors.black,
-          // scaffoldBackgroundColor: Colors.grey[900],
-          typography: Typography.material2018(),
-          backgroundColor: Colors.black,
+          colorScheme:
+              ColorScheme.fromSeed(seedColor: primaryColor!, brightness: Brightness.dark).copyWith(
+                  primary: primaryColor,
+                  // background: Colors.grey[850]!,
+                  background: Colors.black,
+                  surface: Colors.black,
+                  secondary: primaryColor),
+          scaffoldBackgroundColor: darkGray,
+          typography: Typography.material2021(),
           canvasColor: Colors.grey[900],
           dialogBackgroundColor: Colors.grey[900],
           snackBarTheme: SnackBarThemeData(
@@ -176,18 +172,20 @@ class MyApp extends StatelessWidget {
           ),
           textButtonTheme: TextButtonThemeData(
             style: TextButton.styleFrom(
-              // primary: Colors.grey[300],
-              backgroundColor: Colors.grey[300],
+              backgroundColor: darkGray,
+              foregroundColor: Colors.white,
             ),
           ),
           textTheme: Typography().white.copyWith(
-                bodyText1: Typography().white.bodyText1?.copyWith(
+                // countdown timer
+                bodyLarge: Typography().white.bodyLarge?.copyWith(
                       // fontSizeFactor: 1.2,
                       fontSize: 18,
                       color: Colors.grey[500],
                       // fontWeight: FontWeight.w400,
                     ),
-                bodyText2: Typography().white.bodyText2?.copyWith(
+                // times selection
+                bodyMedium: Typography().white.bodyMedium?.copyWith(
                       // fontSizeFactor: 1.2,
                       fontSize: 16,
                       letterSpacing: 0.5,
@@ -200,7 +198,7 @@ class MyApp extends StatelessWidget {
   }
 }
 
-TextStyle? largeButtonsTextStyle = Typography().white.button?.copyWith(
+TextStyle? largeButtonsTextStyle = Typography().white.labelLarge?.copyWith(
       fontSize: 22,
       fontWeight: FontWeight.w900,
       letterSpacing: 1.8,
