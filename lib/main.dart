@@ -27,7 +27,7 @@ Future<void> initNotifications() async {
     [
       NotificationChannel(
         channelKey: 'timer-main',
-        channelName: 'Timer',
+        channelName: 'Timer notifications',
         channelDescription: 'Critical notifications displayed during meditation',
         defaultColor: secondaryColor,
         importance: NotificationImportance.Max,
@@ -37,9 +37,9 @@ Future<void> initNotifications() async {
         enableVibration: false,
       ),
       NotificationChannel(
-        channelKey: 'timer-support',
-        channelName: 'Timer Support',
-        channelDescription: 'Secondary notifications displayed during the meditation',
+        channelKey: 'timer-internal',
+        channelName: 'Timer (support)',
+        channelDescription: 'Internal notifications used by the app. Must stay enabled',
         defaultColor: secondaryColor,
         // urgent: makes sound and appears as heads up
         // high/default: makes sound
@@ -176,7 +176,8 @@ class MyApp extends StatelessWidget {
           ),
           textButtonTheme: TextButtonThemeData(
             style: TextButton.styleFrom(
-              primary: Colors.grey[300],
+              // primary: Colors.grey[300],
+              backgroundColor: Colors.grey[300],
             ),
           ),
           textTheme: Typography().white.copyWith(

@@ -6,8 +6,7 @@ import 'package:meditation/settings.dart';
 import 'package:meditation/utils.dart';
 
 class NAudioPlayer {
-  final audioPlayer = AudioCache();
-  AudioPlayer lastAudioPlayer = AudioPlayer();
+  final audioPlayer = AudioPlayer();
   double lastSystemVolume = 0;
   bool volumeHijackable = true;
 
@@ -19,23 +18,22 @@ class NAudioPlayer {
     log.i("naudioplayer init");
     // can only hide on android
     VolumeController().showSystemUI = false;
-    audioPlayer.loadAll(audioFiles.keys.toList());
   }
 
   Future<void> play(String audioFile) async {
-    // await lastAudioPlayer.stop();
     stopPrevious();
     hijackVolume();
-    lastAudioPlayer = await audioPlayer.play(audioFile, volume: 1.0);
+    await audioPlayer.setSource(AssetSource(audioFile));
+    await audioPlayer.resume();
     // restore volume when audio is done playing
-    lastAudioPlayer.onPlayerCompletion.listen((event) {
+    audioPlayer.onPlayerComplete.listen((_) {
       restoreVolume();
     });
   }
 
   Future<int> stopPrevious() async {
-    int result = await lastAudioPlayer.stop();
-    return result;
+    await audioPlayer.stop();
+    return 0;
   }
 
   Future<void> playSound(String soundKey) async {

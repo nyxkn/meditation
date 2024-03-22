@@ -44,12 +44,12 @@ Duration timeLeftTo(DateTime endTime) {
 }
 
 // example of how you could extend Logger with a custom function that takes a tag parameter if you like
-class NLogger extends Logger {
-  void nlog(String tag, dynamic message,
-      [Level level = Level.info, dynamic error, StackTrace? stackTrace]) {
-    this.log(level, "${tag.toUpperCase()}: $message", error, stackTrace);
-  }
-}
+// class NLogger extends Logger {
+//   void nlog(String tag, dynamic message,
+//       [Level level = Level.info, dynamic error, StackTrace? stackTrace]) {
+//     this.log(level, "${tag.toUpperCase()}: $message", error: error, stackTrace: stackTrace);
+//   }
+// }
 
 var log = Logger(
   filter: null, // Use the default LogFilter (-> only log in debug mode)

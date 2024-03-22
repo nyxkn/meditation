@@ -14,6 +14,7 @@ import 'package:get_it/get_it.dart';
 import 'package:meditation/main.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:wakelock/wakelock.dart';
+import 'package:event_bus/event_bus.dart';
 
 import 'package:meditation/audioplayer.dart';
 import 'package:meditation/utils.dart';
@@ -25,6 +26,38 @@ const int startingNotificationID = 101;
 // intervalNotification is also going to use up the next few numbers
 // reserve 200-299 for it
 const int intervalNotificationID = 200;
+
+final EventBus eventBus = EventBus(sync: true);
+
+class NotificationEvent {
+  String type;
+  int? id;
+  NotificationEvent(this.type, this.id);
+}
+
+class NotificationController {
+  /// Use this method to detect when a new notification or a schedule is created
+  @pragma("vm:entry-point")
+  static Future <void> onNotificationCreatedMethod(ReceivedNotification receivedNotification) async {
+  }
+
+  /// Use this method to detect every time that a new notification is displayed
+  @pragma("vm:entry-point")
+  static Future <void> onNotificationDisplayedMethod(ReceivedNotification receivedNotification) async {
+    log.i("notification displayed. id = ${receivedNotification.id}");
+    eventBus.fire(NotificationEvent("displayed", receivedNotification.id));
+  }
+
+  /// Use this method to detect if the user dismissed a notification
+  @pragma("vm:entry-point")
+  static Future <void> onDismissActionReceivedMethod(ReceivedAction receivedAction) async {
+  }
+
+  /// Use this method to detect when the user taps on a notification or action button
+  @pragma("vm:entry-point")
+  static Future <void> onActionReceivedMethod(ReceivedAction receivedAction) async {
+  }
+}
 
 class TimerWidget extends StatefulWidget {
   const TimerWidget({Key? key}) : super(key: key);
@@ -65,39 +98,17 @@ class _TimerWidgetState extends State<TimerWidget> with SingleTickerProviderStat
       });
     });
 
-    AwesomeNotifications().displayedStream.listen((ReceivedNotification receivedNotification) {
-      // on ios this doesn't seem to get called immediately
-      // so if the app isn't in the foreground, onTimerEnd execution is delayed
-      // this likely doesn't allow the sound to play on time
-      // so you'd rather have to play it through the notification
-      // or find another way of executing code when the app is not in the foreground
-      log.i("notification displayed. id = ${receivedNotification.id}");
-      if (receivedNotification.id == endingNotificationID) {
-        if (timerState == TimerState.meditating) {
-          log.i("ending timer through displayedStream notification callback");
-          onTimerEnd();
-        }
-      }
-      if (intervalNotificationIDs.contains(receivedNotification.id)) {
-        if (timerState == TimerState.meditating) {
-          log.i("reached interval timer through displayedStream notification callback");
-          onTimerInterval();
-          Timer(const Duration(seconds: 1), () {
-            log.i("dismissing interval notification");
-            AwesomeNotifications().dismiss(receivedNotification.id!);
-          });
-        }
-      }
-      if (receivedNotification.id == startingNotificationID) {
-        if (timerState == TimerState.delaying) {
-          log.i("reached starting timer through displayedStream notification callback");
-          onMeditationStart();
-          Timer(const Duration(seconds: 5), () {
-            log.i("dismissing start notification");
-            AwesomeNotifications().dismiss(startingNotificationID);
-          });
-        }
-      }
+    AwesomeNotifications().setListeners(
+        onActionReceivedMethod:         NotificationController.onActionReceivedMethod,
+        onNotificationCreatedMethod:    NotificationController.onNotificationCreatedMethod,
+        onNotificationDisplayedMethod:  NotificationController.onNotificationDisplayedMethod,
+        onDismissActionReceivedMethod:  NotificationController.onDismissActionReceivedMethod
+    );
+
+    eventBus.on<NotificationEvent>().listen((notificationEvent) {
+      // All events are of type UserLoggedInEvent (or subtypes of it).
+      log.d("received notification event - type: ${notificationEvent.type}, id: ${notificationEvent.id}");
+      actOnNotificationDisplayed(notificationEvent.id);
     });
   }
 
@@ -107,6 +118,41 @@ class _TimerWidgetState extends State<TimerWidget> with SingleTickerProviderStat
     ticker.dispose();
 
     super.dispose();
+  }
+
+  void actOnNotificationDisplayed(int? notificationID) {
+    // on ios this doesn't seem to get called immediately
+    // so if the app isn't in the foreground, onTimerEnd execution is delayed
+    // this likely doesn't allow the sound to play on time
+    // so you'd rather have to play it through the notification
+    // or find another way of executing code when the app is not in the foreground
+
+    if (notificationID == endingNotificationID) {
+      if (timerState == TimerState.meditating) {
+        log.i("ending timer through displayedStream notification callback");
+        onTimerEnd();
+      }
+    }
+    if (intervalNotificationIDs.contains(notificationID)) {
+      if (timerState == TimerState.meditating) {
+        log.i("reached interval timer through displayedStream notification callback");
+        onTimerInterval();
+        Timer(const Duration(seconds: 0), () {
+          log.i("dismissing interval notification");
+          AwesomeNotifications().dismiss(notificationID!);
+        });
+      }
+    }
+    if (notificationID == startingNotificationID) {
+      if (timerState == TimerState.delaying) {
+        log.i("reached starting timer through displayedStream notification callback");
+        onMeditationStart();
+        Timer(const Duration(seconds: 4), () {
+          log.i("dismissing start notification");
+          AwesomeNotifications().dismiss(startingNotificationID);
+        });
+      }
+    }
   }
 
   // this function only gets called if the screen is on
@@ -135,7 +181,7 @@ class _TimerWidgetState extends State<TimerWidget> with SingleTickerProviderStat
 
       // backup system for ending the timer in case notification fails
       if (timeLeft.inSeconds <= 0) {
-        log.i("ending timer through updateTimer");
+        log.i("ending timer through timerUpdate");
         onTimerEnd();
         return;
       }
@@ -186,6 +232,7 @@ class _TimerWidgetState extends State<TimerWidget> with SingleTickerProviderStat
       await initFlutterBackground();
 
       timerDelaySeconds = int.parse(Settings.getValue<String>('delay-time') ?? '0');
+
       onTimerStart();
 
       if (timerDelaySeconds > 0) {
@@ -248,22 +295,20 @@ class _TimerWidgetState extends State<TimerWidget> with SingleTickerProviderStat
       log.i('enable background success: $backgroundSuccess');
     }
 
-    if (timerDelaySeconds > 0) {
+    if (timerDelaySeconds >= 5) {
+      // cannot send notifications at intervals <5
+      // what happens with less than 5 seconds is unclear
+      // as long as the app stays in foreground it's going to work
+      // but if it's moved to background i'm not sure it will work
+      // consider limiting the minimum delay to 5 seconds
       await scheduleStartingNotification(timerDelaySeconds);
     }
 
-    timeLeft = Duration(minutes: timerMinutes);
     ticker.start();
   }
 
   // pretty much just the visual/aural part and the switch of state
   void onMeditationStart() async {
-    timerState = TimerState.meditating;
-
-    setState(() {
-      timerButtonText = "end";
-    });
-
     startTime = DateTime.now();
     if (timerMinutes == 0) {
       // this is the test mode
@@ -273,6 +318,13 @@ class _TimerWidgetState extends State<TimerWidget> with SingleTickerProviderStat
     }
     // initial calculation
     timeLeft = timeLeftTo(endTime);
+
+    // we need to calculate timeleft before switching to meditating state
+    // otherwise the first timerupdate could run with the wrong timeleft
+    timerState = TimerState.meditating;
+    setState(() {
+      timerButtonText = "end";
+    });
 
     intervalsEnabled = Settings.getValue<bool>('intervals-enabled') ?? false;
     if (intervalsEnabled) {
@@ -429,7 +481,7 @@ class _TimerWidgetState extends State<TimerWidget> with SingleTickerProviderStat
     AwesomeNotifications().createNotification(
       content: NotificationContent(
         id: startingNotificationID,
-        channelKey: 'timer-support',
+        channelKey: 'timer-internal',
         groupKey: 'timer-start',
         title: 'Meditation started',
         body: 'Tap to return to app',
@@ -452,7 +504,7 @@ class _TimerWidgetState extends State<TimerWidget> with SingleTickerProviderStat
     AwesomeNotifications().createNotification(
       content: NotificationContent(
         id: id,
-        channelKey: 'timer-support',
+        channelKey: 'timer-internal',
         groupKey: 'timer-interval',
         title: 'Meditation interval',
         body: 'Tap to return to app',

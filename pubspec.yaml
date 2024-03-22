@@ -32,19 +32,20 @@ dependencies:
     sdk: flutter
 
   # Project dependencies
-  audioplayers: ^0.20.1
-  awesome_notifications: ^0.6.21 # receive_boot_completed, vibrate
+  audioplayers: ^6.0.0
+  awesome_notifications: ^0.9.3+1 # receive_boot_completed, vibrate
   flutter_background: ^1.1.0 # foreground_service, wake_lock
   flutter_dnd: ^0.1.4+1
 #  flutter_foreground_task: ^3.5.5
   flutter_settings_screens: ^0.3.3-null-safety
   get_it: ^7.2.0
-  logger: ^1.1.0
+  logger: ^2.1.0
 #  permission_handler: ^8.3.0
   shared_preferences: ^2.0.12
   volume_controller: ^2.0.3
   wakelock: ^0.6.1+1
-  package_info_plus: ^1.4.0
+  package_info_plus: ^3.1.2
+  event_bus: ^2.0.0
 
 #  flutter_settings_screens:
 ##    path: /home/nyxkn/apps/flutter-projects/flutter_settings_screens
@@ -57,14 +58,14 @@ dev_dependencies:
   flutter_test:
     sdk: flutter
 
-  flutter_launcher_icons: ^0.9.2
+  flutter_launcher_icons: ^0.13.1
 
   # The "flutter_lints" package below contains a set of recommended lints to
   # encourage good coding practices. The lint set provided by the package is
   # activated in the `analysis_options.yaml` file located at the root of your
   # package. See that file for information about deactivating specific lint
   # rules and activating additional ones.
-  flutter_lints: ^2.0.1
+  flutter_lints: ^3.0.1
 
 # to generate icons:
 # flutter pub run flutter_launcher_icons:main
