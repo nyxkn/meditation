@@ -100,10 +100,11 @@ dependencies {
 //    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
 }
 
-//configurations.all {
-//    exclude group: 'me.leolin', module: 'ShortcutBadger'
-////    implementation "me.leolin:ShortcutBadger:1.1.22@aar"
-//}
+configurations.all {
+    // this removes all permissions related to badges
+    exclude group: 'me.leolin', module: 'ShortcutBadger'
+//    implementation "me.leolin:ShortcutBadger:1.1.22@aar"
+}
 
 
 // by default we get arm 1000 + version, arm64 2000, x86_64 4000

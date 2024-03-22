@@ -418,6 +418,7 @@ class _TimerWidgetState extends State<TimerWidget> with SingleTickerProviderStat
 
     if (Platform.isAndroid) {
       // only dismiss on android
+      // why do we want to dismiss?
       Timer(const Duration(seconds: 10), () {
         log.i("dismissing end notification");
         AwesomeNotifications().dismiss(endingNotificationID);
