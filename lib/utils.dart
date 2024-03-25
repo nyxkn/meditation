@@ -141,7 +141,7 @@ String formatDuration(Duration d) {
   }
 }
 
-void requestBackgroundPermission(context) async {
+Future<void> requestBatteryOptimization(context) async {
   // checking and asking permissions for flutter_background
   if (await FlutterBackground.hasPermissions) {
     return;
@@ -151,7 +151,7 @@ void requestBackgroundPermission(context) async {
     context: context,
     barrierDismissible: false,
     builder: (_) => AlertDialog(
-      title: Text("Background permissions"),
+      title: Text("Ignore Battery Optimization"),
       // removing bottom padding from contentPadding. looks better.
       // contentPadding defaults: https://api.flutter.dev/flutter/material/AlertDialog/contentPadding.html
       contentPadding: EdgeInsets.fromLTRB(24, 20, 24, 0),
@@ -160,7 +160,7 @@ void requestBackgroundPermission(context) async {
           children: [
             Text("On the next screen, please choose to allow the app to run in the background.\n"),
             Text(
-                "This is required to ensure that the timer can work reliably even when the app isn't focused or when the screen turns off.\n"),
+                "This will allow the app to ignore Battery Optimization, and it's required to ensure that the timer can work reliably even when the app isn't focused or when the screen turns off.\n"),
             // Text("This feature will only be used when the timer is running."),
           ],
         ),
@@ -169,9 +169,9 @@ void requestBackgroundPermission(context) async {
         TextButton(
           child: Text("OK"),
           onPressed: () async {
-            Navigator.of(context).pop();
             // this init call is just to ask for permission
             await initFlutterBackground();
+            Navigator.of(context).pop();
           },
         ),
       ],
@@ -179,7 +179,7 @@ void requestBackgroundPermission(context) async {
   );
 }
 
-Future<(bool, List<NotificationPermission>)> requestUserPermissions(BuildContext context,
+Future<(bool, List<NotificationPermission>)> requestNotificationPermissions(BuildContext context,
     {
 // if you only intends to request the permissions until app level, set the channelKey value to null
     required String? channelKey,
@@ -260,7 +260,7 @@ Future<(bool, List<NotificationPermission>)> requestUserPermissions(BuildContext
       await showDialog(
           context: context,
           builder: (context) => AlertDialog(
-                title: const Text('Enable notifications'),
+                title: const Text('Allow Notifications'),
                 content: const Text(
                     "On the next screen, please allow notifications for the app.\n\n"
                     "These notifications are required for reliably notifying you of when the meditation session ends.\n\n"),
@@ -295,10 +295,10 @@ Future<void> requestUserToEnableChannel(context, channelKey) async {
   await showDialog(
   context: context,
   builder: (context) => AlertDialog(
-    title: const Text('Enable notification channel'),
+    title: const Text('Enable Notification Channel'),
     content: const Text(
-        "On the next screen, please enable the shown notification channel.\n\n"
-            "These notifications are required for reliably notifying you of when the meditation session ends.\n\n"),
+        "On the next screen, please enable the notification channel.\n\n"
+        "These notifications are required for reliably notifying you of when the meditation session ends.\n\n"),
     actions: <Widget>[
       TextButton(
         style: TextButton.styleFrom(

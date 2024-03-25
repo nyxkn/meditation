@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -7,11 +8,28 @@ import 'package:flutter_settings_screens/flutter_settings_screens.dart';
 import 'package:get_it/get_it.dart';
 import 'package:logger/logger.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:event_bus/event_bus.dart';
+import 'package:app_settings/app_settings.dart';
 
 import 'package:meditation/audioplayer.dart';
 import 'package:meditation/settings.dart';
 import 'package:meditation/timer.dart';
 import 'package:meditation/utils.dart';
+
+final EventBus eventBus = EventBus(sync: true);
+
+class NotificationEvent {
+  String type;
+  int? id;
+
+  NotificationEvent(this.type, this.id);
+}
+
+class DynamicEvent {
+  dynamic data;
+
+  DynamicEvent(this.data);
+}
 
 // on the very first call to initialize, android will ask to allow notifications
 // there is no way to retrigger this popup, and instead you'll have to redirect user to the settings
@@ -247,6 +265,11 @@ class Home extends StatelessWidget {
       ),
       body: Center(
         child: TimerWidget(),
+      ),
+      floatingActionButton: kReleaseMode ? null : FloatingActionButton(
+        onPressed: () {
+          AppSettings.openAppSettings(type: AppSettingsType.settings);
+        },
       ),
     );
   }

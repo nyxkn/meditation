@@ -1,0 +1,5 @@
++ Upgraded to latest Flutter 3.19.4
++ Migrated UI to Material 3
++ Improved compatibility up to Android 34
++ Renamed delay timer to "Pre-meditation" delay and added an explicit checkbox
++ Improved system for asking user for notification permissions

@@ -3,19 +3,21 @@ This is a meditation timer. Minimalistic, reliable, and truly elegant.
 <b>Features</b>
 
 * Simple, elegant, and intuitive
-* No distractions; only the essential features
-* Custom volume adjustment independent of system volume
-* Reliable countdown timer
+* No distractions - only the essential features
 * Beautiful assortment of bell and gong sounds
+* Custom volume adjustment of the bell sounds
+* Reliable countdown timer
+* Pre-meditation delay
+* Intermediate meditation intervals
 * Free and open-source software
 
 <b>Description</b>
 
-<i>Meditation</i> is a truly minimalistic countdown timer for meditation, with a clean user interface and no clutter. This is an app that is itself a reflection of meditation's purpose.
+<i>Meditation</i> is a truly minimalistic countdown timer for meditation, with a clean user interface and no clutter. The minimalism of the app embodies meditation's actual purpose.
 
-Possibly the most important feature of this app is the ability to customize the volume of the notification bells independently of system volume. This allows you to set a predefined volume so that the sounds will reliably play at the same volume every time. No more mid-meditation worrying about whether you remembered to turn the volume up!
+A notable feature of the app is the ability to customize the volume of the notification bells independently of system volume. This allows you to set a predefined volume so that the sounds will reliably play at the same loudness every time. No more mid-meditation worrying that you remembered to turn the volume up!
 
-Another important feature is for the timer countdown itself to be as reliable as possible, so that there is no doubt the timeout will sound at the right moment and not be delayed.
-This is achieved by starting a foreground service and disabling battery optimization (for this last one you'll be asked for the permission).
+Another important feature is for the timer to be as reliable as possible, to ensure an accurate meditation time and prompt ending sound notification.
+This is achieved by starting a foreground service and disabling battery optimization.
 
 Reliability is of extreme importance to a meditation tool in order to eliminate all possible worries about the timer not behaving correctly. Just press the button and start!

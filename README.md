@@ -24,10 +24,11 @@ Or download the APK directly from GitHub:
 
 * Simple, elegant, and intuitive
 * No distractions - only the essential features
-* Custom volume adjustment
-* Reliable countdown timer
 * Beautiful assortment of bell and gong sounds
-* Intermediate intervals
+* Custom volume adjustment of the bell sounds
+* Reliable countdown timer
+* Pre-meditation delay
+* Intermediate meditation intervals
 * Free and open-source software
 
 ## Screenshots
@@ -38,12 +39,12 @@ Or download the APK directly from GitHub:
 
 ## Description
 
-<i>Meditation</i> is a truly minimalistic countdown timer for meditation, with a clean user interface and no clutter. This is an app that is itself a reflection of meditation's purpose.
+<i>Meditation</i> is a truly minimalistic countdown timer for meditation, with a clean user interface and no clutter. The minimalism of the app embodies meditation's actual purpose.
 
-Possibly the most important feature of this app is the ability to customize the volume of the notification bells independently of system volume. This allows you to set a predefined volume so that the sounds will reliably play at the same volume every time. No more mid-meditation worrying about whether you remembered to turn the volume up!
+A notable feature of the app is the ability to customize the volume of the notification bells independently of system volume. This allows you to set a predefined volume so that the sounds will reliably play at the same loudness every time. No more mid-meditation worrying that you remembered to turn the volume up!
 
-Another important feature is for the timer countdown itself to be as reliable as possible, so that there is no doubt the timeout will sound at the right moment and not be delayed.
-This is achieved by starting a foreground service and disabling battery optimization (for this last one you'll be asked for the permission).
+Another important feature is for the timer to be as reliable as possible, to ensure an accurate meditation time and prompt ending sound notification.
+This is achieved by starting a foreground service and disabling battery optimization.
 
 Reliability is of extreme importance to a meditation tool in order to eliminate all possible worries about the timer not behaving correctly. Just press the button and start!
 
@@ -71,12 +72,8 @@ Both approaches are flawed and will lead to inconsistent volumes if the system v
 With my approach the app makes use of a configurable absolute value, so that the sounds play consistently at the same volume no matter what.
 
 Another issue to solve was the reliability of the timer timeout event, making sure it happens at exactly the right time.
-For whatever reason, this is a ridiculously complex problem on mobile devices due to the continuous operating system "improvements" to extend battery life that make it really hard to ensure that a time-critical task happens after the right amount of time.
-This app will make use of all possible tricks to ensure it is reliable. What I finally found to be working was the combination of these techniques:
-- Setting a system alarm with the highest possible priority
-- Starting a foreground service to keep the app running
-- Disabling battery optimization
-- (optional) Keeping the screen on
+For whatever reason, this is a ridiculously complex problem on mobile devices. There are continuous "improvements" to attempt to extend battery life, that make it really hard to ensure that a time-critical task happens at the right time.
+This app will make use of all possible tricks to ensure it is reliable. What I settled on was a combination of a foreground service and disabling battery optimization. This allows notifications to be sent reliably at the correct time. If that still doesn't work, you also have the option of keeping the screen on through wakelock.
 
 ## Credits
 

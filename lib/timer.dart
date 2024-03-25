@@ -14,7 +14,6 @@ import 'package:get_it/get_it.dart';
 import 'package:meditation/main.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:wakelock/wakelock.dart';
-import 'package:event_bus/event_bus.dart';
 
 import 'package:meditation/audioplayer.dart';
 import 'package:meditation/utils.dart';
@@ -27,14 +26,6 @@ const int startingNotificationID = 101;
 // reserve 200-299 for it
 const int intervalNotificationID = 200;
 
-final EventBus eventBus = EventBus(sync: true);
-
-class NotificationEvent {
-  String type;
-  int? id;
-
-  NotificationEvent(this.type, this.id);
-}
 
 class NotificationController {
   /// Use this method to detect when a new notification or a schedule is created
@@ -213,9 +204,22 @@ class _TimerWidgetState extends State<TimerWidget> with SingleTickerProviderStat
   Future<bool> checkPermissions() async {
     var userAction = false;
 
+    var backgroundPermissionOkay = await FlutterBackground.hasPermissions;
+    if (!backgroundPermissionOkay) {
+      await requestBatteryOptimization(context);
+      userAction = true;
+
+      backgroundPermissionOkay = await FlutterBackground.hasPermissions;
+      if (!backgroundPermissionOkay) {
+        // if the user hasn't enabled the permission, return early
+        // because without batteryoptimization permissions we can't enable precisealarms notification
+        return !userAction;
+      }
+    }
+
     // request app permissions. this should be enough
     var (requestedUserAction, allowedPermissions) =
-        await requestUserPermissions(context, channelKey: null, permissionList: [
+        await requestNotificationPermissions(context, channelKey: null, permissionList: [
       // generic default permissions are alert, sound, vibration, light
       NotificationPermission.Alert,
       // we remove badge support
@@ -226,6 +230,7 @@ class _TimerWidgetState extends State<TimerWidget> with SingleTickerProviderStat
       // extra permissions
       NotificationPermission.CriticalAlert,
       NotificationPermission.FullScreenIntent,
+      // precise alarms requires disabling of battery optimization?
       NotificationPermission.PreciseAlarms,
       // NotificationPermission.OverrideDnD,
     ]);
@@ -256,7 +261,7 @@ class _TimerWidgetState extends State<TimerWidget> with SingleTickerProviderStat
     // we use the Light permission because we have to check at least one
     // and this is the least intrusive that we can enable
     // but if only checking Light to check for channel activation, then the above checks are enough
-    (requestedUserAction, allowedPermissions) = await requestUserPermissions(context,
+    (requestedUserAction, allowedPermissions) = await requestNotificationPermissions(context,
         channelKey: "timer-main",
         permissionList: [NotificationPermission.Alert, NotificationPermission.Light]);
     if (requestedUserAction) {
@@ -265,15 +270,9 @@ class _TimerWidgetState extends State<TimerWidget> with SingleTickerProviderStat
 
     // testing for Light is a way of simply testing whether the notification is enabled or not
     // vibration and sound won't work on testing for a min importance notification channel
-    (requestedUserAction, allowedPermissions) = await requestUserPermissions(context,
+    (requestedUserAction, allowedPermissions) = await requestNotificationPermissions(context,
         channelKey: "timer-support", permissionList: [NotificationPermission.Light]);
     if (requestedUserAction) {
-      userAction = true;
-    }
-
-    var backgroundPermissionOkay = await FlutterBackground.hasPermissions;
-    if (!backgroundPermissionOkay) {
-      requestBackgroundPermission(context);
       userAction = true;
     }
 
@@ -400,8 +399,6 @@ class _TimerWidgetState extends State<TimerWidget> with SingleTickerProviderStat
       timerButtonText = "end";
     });
 
-    log.d(timerDuration.inSeconds);
-    // await scheduleEndingNotification(timeLeft.inSeconds);
     await scheduleEndingNotification(timerDuration.inSeconds);
 
     intervalsEnabled = Settings.getValue<bool>('intervals-enabled') ?? false;
