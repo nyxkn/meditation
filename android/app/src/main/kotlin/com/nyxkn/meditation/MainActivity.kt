@@ -1,15 +1,15 @@
 package com.nyxkn.meditation
 
 import android.app.NotificationManager
-import io.flutter.embedding.android.FlutterActivity
-import io.flutter.embedding.engine.FlutterEngine
-
-import android.content.Context
-import androidx.annotation.NonNull
-import io.flutter.plugin.common.MethodChannel
-
 import android.content.Intent
 import android.provider.Settings
+import android.os.Build
+import android.content.Context
+import androidx.annotation.NonNull
+
+import io.flutter.embedding.android.FlutterActivity
+import io.flutter.embedding.engine.FlutterEngine
+import io.flutter.plugin.common.MethodChannel
 
 class MainActivity: FlutterActivity() {
     override fun configureFlutterEngine(@NonNull flutterEngine: FlutterEngine) {
@@ -44,8 +44,15 @@ class MainActivity: FlutterActivity() {
 
     private fun isNotificationChannelEnabled(channelId: String): Boolean {
         val manager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-        val channel = manager.getNotificationChannel(channelId)
-        return channel?.importance != NotificationManager.IMPORTANCE_NONE
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            // For Android Oreo and above, check if the specific channel is enabled
+            val channel = manager.getNotificationChannel(channelId)
+            return channel?.importance != NotificationManager.IMPORTANCE_NONE
+        } else {
+            // For older versions, just assume true. Hopefully AwesomeNotifications takes care of that well enough
+            return true;
+        }
     }
 
     private fun openChannelSettings(channelId: String) {
