@@ -31,24 +31,28 @@ Future<void> initNotifications() async {
         channelDescription: 'Critical notifications displayed during meditation',
         defaultColor: secondaryColor,
         importance: NotificationImportance.Max,
-        // this enables critical alerts
+        // critical alerts are to play sound and vibration even in dnd. we might not actually need this
         criticalAlerts: true,
         playSound: false,
         enableVibration: false,
+        // we need lights so that we can check if channel is enabled
+        enableLights: true,
       ),
       NotificationChannel(
-        channelKey: 'timer-internal',
+        channelKey: 'timer-support',
         channelName: 'Timer (support)',
-        channelDescription: 'Internal notifications used by the app. Must stay enabled',
+        channelDescription: 'Support notifications. Not visible but must stay enabled',
         defaultColor: secondaryColor,
         // urgent: makes sound and appears as heads up
         // high/default: makes sound
         // medium/low: no sound
         // min: no sound and does not appear in status bar
-        importance: NotificationImportance.Min,
-        criticalAlerts: true,
+        // importance: NotificationImportance.Min,
+        importance: NotificationImportance.Default,
+        criticalAlerts: false,
         playSound: false,
         enableVibration: false,
+        enableLights: true,
       ),
     ],
     // Channel groups are only visual and are not required

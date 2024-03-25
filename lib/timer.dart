@@ -32,31 +32,31 @@ final EventBus eventBus = EventBus(sync: true);
 class NotificationEvent {
   String type;
   int? id;
+
   NotificationEvent(this.type, this.id);
 }
 
 class NotificationController {
   /// Use this method to detect when a new notification or a schedule is created
   @pragma("vm:entry-point")
-  static Future <void> onNotificationCreatedMethod(ReceivedNotification receivedNotification) async {
-  }
+  static Future<void> onNotificationCreatedMethod(
+      ReceivedNotification receivedNotification) async {}
 
   /// Use this method to detect every time that a new notification is displayed
   @pragma("vm:entry-point")
-  static Future <void> onNotificationDisplayedMethod(ReceivedNotification receivedNotification) async {
+  static Future<void> onNotificationDisplayedMethod(
+      ReceivedNotification receivedNotification) async {
     log.i("notification displayed. id = ${receivedNotification.id}");
     eventBus.fire(NotificationEvent("displayed", receivedNotification.id));
   }
 
   /// Use this method to detect if the user dismissed a notification
   @pragma("vm:entry-point")
-  static Future <void> onDismissActionReceivedMethod(ReceivedAction receivedAction) async {
-  }
+  static Future<void> onDismissActionReceivedMethod(ReceivedAction receivedAction) async {}
 
   /// Use this method to detect when the user taps on a notification or action button
   @pragma("vm:entry-point")
-  static Future <void> onActionReceivedMethod(ReceivedAction receivedAction) async {
-  }
+  static Future<void> onActionReceivedMethod(ReceivedAction receivedAction) async {}
 }
 
 class TimerWidget extends StatefulWidget {
@@ -99,15 +99,15 @@ class _TimerWidgetState extends State<TimerWidget> with SingleTickerProviderStat
     });
 
     AwesomeNotifications().setListeners(
-        onActionReceivedMethod:         NotificationController.onActionReceivedMethod,
-        onNotificationCreatedMethod:    NotificationController.onNotificationCreatedMethod,
-        onNotificationDisplayedMethod:  NotificationController.onNotificationDisplayedMethod,
-        onDismissActionReceivedMethod:  NotificationController.onDismissActionReceivedMethod
-    );
+        onActionReceivedMethod: NotificationController.onActionReceivedMethod,
+        onNotificationCreatedMethod: NotificationController.onNotificationCreatedMethod,
+        onNotificationDisplayedMethod: NotificationController.onNotificationDisplayedMethod,
+        onDismissActionReceivedMethod: NotificationController.onDismissActionReceivedMethod);
 
     eventBus.on<NotificationEvent>().listen((notificationEvent) {
       // All events are of type UserLoggedInEvent (or subtypes of it).
-      log.d("received notification event - type: ${notificationEvent.type}, id: ${notificationEvent.id}");
+      log.d(
+          "received notification event - type: ${notificationEvent.type}, id: ${notificationEvent.id}");
       actOnNotificationDisplayed(notificationEvent.id);
     });
   }
@@ -211,19 +211,78 @@ class _TimerWidgetState extends State<TimerWidget> with SingleTickerProviderStat
     if (timerState == TimerState.stopped) {
       // start pressed
 
-      // this only checks whether notifications are allowed for the app at all
-      // it's probably all you need for android (not sure about ios)
-      // but in any case it doesn't hurt to be precise with what's missing
-      // var notificationsOkay = await AwesomeNotifications().isNotificationAllowed();
-      var missingPermissions = await checkMissingNotificationPermissions();
-      if (missingPermissions.length != 0) {
-        forceRequestNotifications(context, missingPermissions);
-        return;
+      var userAction = false;
+
+      // request app permissions. this should be enough
+      var (requestedUserAction, allowedPermissions) =
+          await requestUserPermissions(context, channelKey: null, permissionList: [
+        // generic default permissions are alert, sound, vibration, light
+        NotificationPermission.Alert,
+        // we remove badge support
+        // NotificationPermission.Badge,
+        NotificationPermission.Sound,
+        NotificationPermission.Vibration,
+        NotificationPermission.Light,
+        // extra permissions
+        NotificationPermission.CriticalAlert,
+        NotificationPermission.FullScreenIntent,
+        NotificationPermission.PreciseAlarms,
+        // NotificationPermission.OverrideDnD,
+      ]);
+      if (requestedUserAction) {
+        userAction = true;
+      }
+
+      var channelHelper = ChannelHelper();
+
+      bool isChannelEnabled = await channelHelper.isNotificationChannelEnabled("timer-main");
+      log.d("is channel timer-main enabled: $isChannelEnabled");
+      if (!isChannelEnabled) {
+        userAction = true;
+        await requestUserToEnableChannel(context, "timer-main");
+      }
+
+      isChannelEnabled = await channelHelper.isNotificationChannelEnabled("timer-support");
+      log.d("is channel timer-support enabled: $isChannelEnabled");
+      if (!isChannelEnabled) {
+        userAction = true;
+        await requestUserToEnableChannel(context, "timer-support");
+      }
+
+      // these checks are extra checks to see if for any reason any of the individual channels was disabled
+      // these extra checks are to see if we can enable the requested permissions
+      // note that in case of user tampering with permissions, these can't be restored at all
+      // but these permissions seem to be aesthetic so it should not affect us much
+      // we use the Light permission because we have to check at least one
+      // and this is the least intrusive that we can enable
+      // but if only checking Light to check for channel activation, then the above checks are enough
+      (requestedUserAction, allowedPermissions) = await requestUserPermissions(context,
+          channelKey: "timer-main",
+          permissionList: [
+            NotificationPermission.Alert,
+            NotificationPermission.Light
+          ]);
+      if (requestedUserAction) {
+        userAction = true;
+      }
+
+      // testing for Light is a way of simply testing whether the notification is enabled or not
+      // vibration and sound won't work on testing for a min importance notification channel
+      (requestedUserAction, allowedPermissions) = await requestUserPermissions(context,
+          channelKey: "timer-support",
+          permissionList: [NotificationPermission.Light]);
+      if (requestedUserAction) {
+        userAction = true;
       }
 
       var backgroundPermissionOkay = await FlutterBackground.hasPermissions;
       if (!backgroundPermissionOkay) {
         requestBackgroundPermission(context);
+        userAction = true;
+      }
+
+      if (userAction) {
+        // if we asked user for stuff, don't start timer. let them press again
         return;
       }
 
@@ -245,7 +304,7 @@ class _TimerWidgetState extends State<TimerWidget> with SingleTickerProviderStat
       }
     } else {
       // stop pressed
-      if (timerDelaySeconds == 0 && DateTime.now().difference(startTime).inSeconds < 1) {
+      if (timerDelaySeconds == 0 && DateTime.now().difference(startTime).inMilliseconds < 500) {
         // prevent accidental double tap
         // but not if coming from the delayed start
         return;
@@ -482,7 +541,7 @@ class _TimerWidgetState extends State<TimerWidget> with SingleTickerProviderStat
     AwesomeNotifications().createNotification(
       content: NotificationContent(
         id: startingNotificationID,
-        channelKey: 'timer-internal',
+        channelKey: 'timer-support',
         groupKey: 'timer-start',
         title: 'Meditation started',
         body: 'Tap to return to app',
@@ -505,7 +564,7 @@ class _TimerWidgetState extends State<TimerWidget> with SingleTickerProviderStat
     AwesomeNotifications().createNotification(
       content: NotificationContent(
         id: id,
-        channelKey: 'timer-internal',
+        channelKey: 'timer-support',
         groupKey: 'timer-interval',
         title: 'Meditation interval',
         body: 'Tap to return to app',

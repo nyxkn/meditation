@@ -4,6 +4,7 @@ import 'package:awesome_notifications/awesome_notifications.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_background/flutter_background.dart';
 import 'package:intl/intl.dart';
+import 'package:flutter/services.dart';
 
 import 'package:meditation/main.dart';
 import 'package:logger/logger.dart';
@@ -130,7 +131,7 @@ void requestBackgroundPermission(context) async {
     context: context,
     barrierDismissible: false,
     builder: (_) => AlertDialog(
-      title: Text("Setup permissions"),
+      title: Text("Background permissions"),
       // removing bottom padding from contentPadding. looks better.
       // contentPadding defaults: https://api.flutter.dev/flutter/material/AlertDialog/contentPadding.html
       contentPadding: EdgeInsets.fromLTRB(24, 20, 24, 0),
@@ -158,55 +159,164 @@ void requestBackgroundPermission(context) async {
   );
 }
 
-Future<List<NotificationPermission>> checkMissingNotificationPermissions() async {
-  List<NotificationPermission> permissionList = [
-    NotificationPermission.Alert,
-    // NotificationPermission.Sound
-  ];
+Future<(bool, List<NotificationPermission>)> requestUserPermissions(BuildContext context,
+    {
+// if you only intends to request the permissions until app level, set the channelKey value to null
+    required String? channelKey,
+    required List<NotificationPermission> permissionList}) async {
+  bool requestedUserAction = false;
 
-  List<NotificationPermission> permissionsAllowed =
-      await AwesomeNotifications().checkPermissionList(
-    channelKey: 'timer-main',
-    permissions: permissionList,
-  );
+// Check which of the permissions you need are allowed at this time
+  List<NotificationPermission> permissionsAllowed = await AwesomeNotifications()
+      .checkPermissionList(channelKey: channelKey, permissions: permissionList);
 
-  var notificationsOkay = false;
-  if (permissionsAllowed.length == permissionList.length) {
-    return [];
+// If all permissions are allowed, there is nothing to do
+  if (permissionsAllowed.length == permissionList.length)
+    return (requestedUserAction, permissionsAllowed);
+
+// Refresh the permission list with only the disallowed permissions
+  List<NotificationPermission> permissionsNeeded =
+      permissionList.toSet().difference(permissionsAllowed.toSet()).toList();
+
+// Check if some of the permissions needed request user's intervention to be enabled
+  List<NotificationPermission> lockedPermissions = await AwesomeNotifications()
+      .shouldShowRationaleToRequest(channelKey: channelKey, permissions: permissionsNeeded);
+
+// If there is no permissions depending on user's intervention, so request it directly
+  if (lockedPermissions.isEmpty) {
+// Request the permission through native resources.
+    await AwesomeNotifications().requestPermissionToSendNotifications(
+        channelKey: channelKey, permissions: permissionsNeeded);
+
+// After the user come back, check if the permissions has successfully enabled
+    permissionsAllowed = await AwesomeNotifications()
+        .checkPermissionList(channelKey: channelKey, permissions: permissionsNeeded);
   } else {
-    List<NotificationPermission> permissionsNeeded =
-        permissionList.toSet().difference(permissionsAllowed.toSet()).toList();
-    return permissionsNeeded;
+// If you need to show a rationale to educate the user to conceived the permission, show it
+    if (channelKey != null) {
+      // user has manually disabled or modified a channel, which makes this really hard to solve
+      // you'd have to ask the user to disable the channel and reenable it
+      // that seems to always set the needed permissions
+      // but you can't really lock the app on an endless dialog if the user doesn't comply
+      // you could at least detect if the channel was disabled and ask to re-enable
+      // but you can't check for channel enabled status without also checking for a specific permission
+      // so you could check for something like light, but you cannot check for something like alert
+      // because alert can't seem to be activated manually
+      // i'd say the best bet is to just not do anything
+      // we also don't know how it works on every version of android
+      log.e(
+          "channel permissions have been tampered with. couldn't enable: ${lockedPermissions} on channel: ${channelKey}");
+      // ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Issue with notification settings. If app doesn't work, try uninstalling and reinstalling")));
+//       await showDialog(
+//           context: context,
+//           builder: (context) => AlertDialog(
+//                 title: const Text('Issue with notifications'),
+//                 content: const Text(
+//                     "There is a problem with the notification permissions for this app.\n\n"
+//                     "On the next screen, please disable and re-enabled the shown notification channel.\n\n"
+//                     "These are required for reliably notifying you of when the meditation session ends.\n\n"),
+//                 actions: <Widget>[
+//                   TextButton(
+//                     style: TextButton.styleFrom(
+//                       textStyle: Theme.of(context).textTheme.labelLarge,
+//                     ),
+//                     child: const Text('OK'),
+//                     onPressed: () async {
+// // Request the permission through native resources. Only one page redirection is done at this point.
+//                       await AwesomeNotifications().requestPermissionToSendNotifications(
+//                           channelKey: channelKey, permissions: lockedPermissions);
+//
+// // After the user come back, check if the permissions has successfully enabled
+//                       permissionsAllowed = await AwesomeNotifications().checkPermissionList(
+//                           channelKey: channelKey, permissions: lockedPermissions);
+//
+//                       Navigator.of(context).pop();
+//                     },
+//                   ),
+//                 ],
+//               ));
+    } else {
+      requestedUserAction = true;
+      await showDialog(
+          context: context,
+          builder: (context) => AlertDialog(
+                title: const Text('Enable notifications'),
+                content: const Text(
+                    "On the next screen, please allow notifications for the app.\n\n"
+                    "These notifications are required for reliably notifying you of when the meditation session ends.\n\n"),
+                actions: <Widget>[
+                  TextButton(
+                    style: TextButton.styleFrom(
+                      textStyle: Theme.of(context).textTheme.labelLarge,
+                    ),
+                    child: const Text('OK'),
+                    onPressed: () async {
+// Request the permission through native resources. Only one page redirection is done at this point.
+                      await AwesomeNotifications().requestPermissionToSendNotifications(
+                          channelKey: channelKey, permissions: lockedPermissions);
+
+// After the user come back, check if the permissions has successfully enabled
+                      permissionsAllowed = await AwesomeNotifications().checkPermissionList(
+                          channelKey: channelKey, permissions: lockedPermissions);
+
+                      Navigator.of(context).pop();
+                    },
+                  ),
+                ],
+              ));
+    }
   }
+
+// Return the updated list of allowed permissions
+  return (requestedUserAction, permissionsAllowed);
 }
 
-void forceRequestNotifications(context, permissionList) async {
+Future<void> requestUserToEnableChannel(context, channelKey) async {
   await showDialog(
-    context: context,
-    builder: (BuildContext context) {
-      return AlertDialog(
-        title: const Text('Setup permissions'),
-        content: const Text("On the next screen, please enable notifications for the app.\n\n"
-            "There are required for notifying you of when the timed session ends.\n\n"),
-        actions: <Widget>[
-          TextButton(
-            style: TextButton.styleFrom(
-              textStyle: Theme.of(context).textTheme.labelLarge,
-            ),
-            child: const Text('OK'),
-            onPressed: () {
-              Navigator.of(context).pop();
-            },
-          ),
-        ],
-      );
-    },
-  );
+  context: context,
+  builder: (context) => AlertDialog(
+    title: const Text('Enable notification channel'),
+    content: const Text(
+        "On the next screen, please enable the shown notification channel.\n\n"
+            "These notifications are required for reliably notifying you of when the meditation session ends.\n\n"),
+    actions: <Widget>[
+      TextButton(
+        style: TextButton.styleFrom(
+          textStyle: Theme.of(context).textTheme.labelLarge,
+        ),
+        child: const Text('OK'),
+        onPressed: () async {
+          var helper = ChannelHelper();
+          bool isChannelEnabled = await helper.isNotificationChannelEnabled(channelKey);
+          if (!isChannelEnabled) {
+            helper.openNotificationChannelSettings(channelKey);
+          }
 
-  // if called without params, defaults to Alert, Badge, Sound, Vibrate and Light.
-  // badge is broken because we've removed me.leolin.shortcutbadger stuff in the gradle build
-  // AwesomeNotifications().requestPermissionToSendNotifications();
-  AwesomeNotifications().requestPermissionToSendNotifications(
-      // channelKey: 'timer-main',
-      permissions: permissionList);
+          Navigator.of(context).pop();
+        },
+      ),
+    ],
+  ));
+}
+
+class ChannelHelper {
+  static const platform = MethodChannel('com.nyxkn.meditation/channelHelper');
+
+  Future<bool> isNotificationChannelEnabled(String channelId) async {
+    try {
+      final bool isEnabled = await platform.invokeMethod('isChannelEnabled', {'channelId': channelId});
+      return isEnabled;
+    } on PlatformException catch (e) {
+      print("Error checking notification channel status: ${e.message}");
+      return false;
+    }
+  }
+
+  Future<void> openNotificationChannelSettings(String channelId) async {
+    try {
+      await platform.invokeMethod('openChannelSettings', {'channelId': channelId});
+    } on PlatformException catch (e) {
+      print("Failed to open channel settings: ${e.message}");
+    }
+  }
 }
