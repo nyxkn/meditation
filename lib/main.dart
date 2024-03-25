@@ -114,8 +114,12 @@ Future<void> initDefaultSettings() async {
     await Settings.setValue<bool>('show-countdown', true);
   }
 
+  if (Settings.getValue<bool>('delay-enabled') == null) {
+    await Settings.setValue<bool>('delay-enabled', false);
+  }
+
   if (Settings.getValue<String>('delay-time') == null) {
-    await Settings.setValue<String>('delay-time', '0');
+    await Settings.setValue<String>('delay-time', '5');
   }
 }
 

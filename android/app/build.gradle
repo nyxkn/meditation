@@ -115,6 +115,8 @@ configurations.all {
 // more versioning ideas: https://developer.android.com/google/play/publishing/multiple-apks#VersionCodes
 
 // Map for the version code that gives each ABI a value.
+// 0 is reserved for the fat apk
+// newer standards get a higher number (to allow possible upgrade path)
 ext.abiCodes = ['x86_64': 1, 'armeabi-v7a': 2, 'arm64-v8a': 3]
 // For per-density APKs, create a similar map:
 // ext.densityCodes = ['mdpi': 1, 'hdpi': 2, 'xhdpi': 3]
@@ -149,6 +151,9 @@ android.applicationVariants.all { variant ->
 
             // my own version:
             output.versionCodeOverride = variant.versionCode * 100 + baseAbiVersionCode
+        } else {
+            // fat apk. should be the lowest version, so you can always upgrade to specific abi
+            output.versionCodeOverride = variant.versionCode * 100 + 0
         }
     }
 }

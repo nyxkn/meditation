@@ -75,48 +75,61 @@ class _SettingsWidgetState extends State<SettingsWidget> {
                 ),
               ],
             ),
-            SettingsGroup(
-              title: 'Options',
-              children: <Widget>[
-                // CheckboxSettingsTile(title: 'Hide timer countdown', settingKey: 'hide-countdown'),
-                CheckboxSettingsTile(
-                  title: 'Keep screen on',
-                  settingKey: 'screen-wakelock',
-                  subtitle: "Enable this to keep the screen on as you meditate",
-                ),
-                CheckboxSettingsTile(
-                  title: 'Do not disturb',
-                  settingKey: 'dnd',
-                  subtitle: "Enable 'Do Not Disturb' mode while meditating",
-                  onChange: (value) async {
-                    if (value == true) {
-                      if (!(await FlutterDnd.isNotificationPolicyAccessGranted ?? false)) {
-                        askPermissionDND();
-                      }
+            SettingsGroup(title: 'Options', children: <Widget>[
+              // CheckboxSettingsTile(title: 'Hide timer countdown', settingKey: 'hide-countdown'),
+              CheckboxSettingsTile(
+                title: 'Keep screen on',
+                settingKey: 'screen-wakelock',
+                subtitle: "Enable this to keep the screen on as you meditate",
+              ),
+              CheckboxSettingsTile(
+                title: 'Do not disturb',
+                settingKey: 'dnd',
+                subtitle: "Enable 'Do Not Disturb' mode while meditating",
+                onChange: (value) async {
+                  if (value == true) {
+                    if (!(await FlutterDnd.isNotificationPolicyAccessGranted ?? false)) {
+                      askPermissionDND();
                     }
-                  },
-                ),
-                CheckboxSettingsTile(
-                  title: 'Show countdown',
-                  settingKey: 'show-countdown',
-                  subtitle: "Show the remaining meditation time",
-                ),
-                TextInputSettingsTile(
-                  title: 'Start delay',
-                  settingKey: 'delay-time',
-                  keyboardType: TextInputType.number,
-                  selectAllOnFocus: true,
-                  autovalidateMode: AutovalidateMode.onUserInteraction,
-                  validator: timeInputValidatorConstructor(minTimerTime: 0, maxTimerTime: 60) as Validator,
-                  inputFormatters: [
-                    FilteringTextInputFormatter.digitsOnly,
-                  ],
-                  borderColor: primaryColor,
-                  errorColor: secondaryColor,
-                  helperText: 'Delay time in seconds, between 1 and 60. Use 0 to disable.',
-                ),
-              ],
-            ),
+                  }
+                },
+              ),
+              CheckboxSettingsTile(
+                title: 'Show countdown',
+                settingKey: 'show-countdown',
+                subtitle: "Show the remaining meditation time",
+              ),
+              CheckboxSettingsTile(
+                  settingKey: 'delay-enabled',
+                  title: 'Pre-meditation delay',
+                  subtitle: 'Add an initial delay before the meditation starts',
+                  childrenIfEnabled: [
+                    Divider(height: 4, thickness: 4, indent: 0),
+                    Container(
+                        padding: EdgeInsets.only(left: 8.0),
+                        child: Column(
+                          children: [
+                            TextInputSettingsTile(
+                              title: 'Delay duration (seconds)',
+                              settingKey: 'delay-time',
+                              keyboardType: TextInputType.number,
+                              selectAllOnFocus: true,
+                              autovalidateMode: AutovalidateMode.onUserInteraction,
+                              validator:
+                                  timeInputValidatorConstructor(minTimerTime: 5, maxTimerTime: 60)
+                                      as Validator,
+                              inputFormatters: [
+                                FilteringTextInputFormatter.digitsOnly,
+                              ],
+                              borderColor: primaryColor,
+                              errorColor: secondaryColor,
+                              helperText:
+                                  'Delay time in seconds, between 5 and 60.',
+                            ),
+                          ],
+                        ))
+                  ])
+            ]),
             SettingsGroup(
               title: 'Sounds',
               children: <Widget>[
@@ -160,19 +173,21 @@ class _SettingsWidgetState extends State<SettingsWidget> {
                       child: Column(
                         children: [
                           TextInputSettingsTile(
-                            title: 'Interval duration',
+                            title: 'Interval duration (minutes)',
                             settingKey: 'interval-time',
                             keyboardType: TextInputType.number,
                             selectAllOnFocus: true,
                             autovalidateMode: AutovalidateMode.onUserInteraction,
-                            validator: timeInputValidatorConstructor(minTimerTime: 1, maxTimerTime: maxMeditationTime) as Validator,
+                            validator: timeInputValidatorConstructor(
+                                minTimerTime: 1, maxTimerTime: maxMeditationTime) as Validator,
                             inputFormatters: [
                               FilteringTextInputFormatter.digitsOnly,
                               FilteringTextInputFormatter.deny(RegExp(r"^0")),
                             ],
                             borderColor: primaryColor,
                             errorColor: secondaryColor,
-                            helperText: 'Interval time in minutes, between 1 and $maxMeditationTime.',
+                            helperText:
+                                'Interval time in minutes, between 1 and $maxMeditationTime.',
                           ),
                           // Divider(
                           //   height: 1,

@@ -40,10 +40,6 @@ Function timeInputValidatorConstructor({minTimerTime = 1, maxTimerTime = 60}) {
   return validator;
 }
 
-Duration timeLeftTo(DateTime endTime) {
-  Duration timeLeft = endTime.difference(DateTime.now()) + Duration(seconds: 1);
-  return timeLeft;
-}
 
 // example of how you could extend Logger with a custom function that takes a tag parameter if you like
 // class NLogger extends Logger {
@@ -107,13 +103,37 @@ String formatSeconds(int seconds) {
   return mm.toString().padLeft(2, '0') + ':' + ss.toString().padLeft(2, '0');
 }
 
+Duration timeLeftTo(DateTime endTime, {bool roundToZero = false}) {
+  // Duration timeLeft = endTime.difference(DateTime.now()) + Duration(seconds: 1);
+  Duration timeLeft = endTime.difference(DateTime.now());
+  if (roundToZero && timeLeft.inMilliseconds.abs() < 1000) {
+    log.d("rounding timeleft to zero because within 1s. was ${timeLeft.inMilliseconds} ms");
+    // if close enough to 0, round to 0
+    timeLeft = Duration.zero;
+  }
+  return timeLeft;
+}
+
+String timeLeftString(Duration d) {
+  if (!d.isNegative && d != Duration.zero) {
+    // we have to add 1 second because otherwise the range 9.9 - 9.0 is all called 9
+    // but it's more accurate to call that 10 and switch to 9 when reaching 9
+    d += Duration(seconds: 1);
+  }
+
+  return formatDuration(d);
+}
+
 String formatDuration(Duration d) {
   var formattedString = d.toString().split('.').first;
-  if (formattedString[0] == '0') {
+  // remove leading -
+  formattedString = formattedString.replaceFirst('-', '');
+  if (formattedString.startsWith('0')) {
     // if we have 0 hours, remove hours
     formattedString = formattedString.substring(2);
   }
 
+  // readd leading -
   if (d.isNegative) {
     return '-$formattedString';
   } else {

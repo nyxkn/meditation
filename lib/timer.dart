@@ -89,7 +89,7 @@ class _TimerWidgetState extends State<TimerWidget> with SingleTickerProviderStat
   void initState() {
     super.initState();
 
-    ticker = createTicker(timerUpdate);
+    ticker = createTicker(tickerUpdate);
     // timerDelayTicker = createTicker(timerDelayUpdate);
 
     SharedPreferences.getInstance().then((prefs) {
@@ -129,7 +129,7 @@ class _TimerWidgetState extends State<TimerWidget> with SingleTickerProviderStat
 
     if (notificationID == endingNotificationID) {
       if (timerState == TimerState.meditating) {
-        log.i("ending timer through displayedStream notification callback");
+        log.i("ending timer through displayedStream notification callback. timeleft: ${timeLeft.inMilliseconds} ms");
         onTimerEnd();
       }
     }
@@ -156,7 +156,7 @@ class _TimerWidgetState extends State<TimerWidget> with SingleTickerProviderStat
   }
 
   // this function only gets called if the screen is on
-  void timerUpdate(Duration elapsed) {
+  void tickerUpdate(Duration elapsed) {
     if (timerState == TimerState.stopped) {
       return;
     }
@@ -180,7 +180,10 @@ class _TimerWidgetState extends State<TimerWidget> with SingleTickerProviderStat
       // meditating
 
       // backup system for ending the timer in case notification fails
-      if (timeLeft.inSeconds <= 0) {
+      if (timeLeft.inMilliseconds <= 200) {
+        // better for this to end a little early than too late
+        // not sure how fast ticker is called but maybe 60fps? so 16.6 ms between calls
+        // 200ms allows for ~12 frames leeway
         log.i("ending timer through timerUpdate");
         onTimerEnd();
         return;
@@ -207,100 +210,88 @@ class _TimerWidgetState extends State<TimerWidget> with SingleTickerProviderStat
     }
   }
 
+  Future<bool> checkPermissions() async {
+    var userAction = false;
+
+    // request app permissions. this should be enough
+    var (requestedUserAction, allowedPermissions) =
+        await requestUserPermissions(context, channelKey: null, permissionList: [
+      // generic default permissions are alert, sound, vibration, light
+      NotificationPermission.Alert,
+      // we remove badge support
+      // NotificationPermission.Badge,
+      NotificationPermission.Sound,
+      NotificationPermission.Vibration,
+      NotificationPermission.Light,
+      // extra permissions
+      NotificationPermission.CriticalAlert,
+      NotificationPermission.FullScreenIntent,
+      NotificationPermission.PreciseAlarms,
+      // NotificationPermission.OverrideDnD,
+    ]);
+    if (requestedUserAction) {
+      userAction = true;
+    }
+
+    var channelHelper = ChannelHelper();
+
+    bool isChannelEnabled = await channelHelper.isNotificationChannelEnabled("timer-main");
+    log.d("is channel timer-main enabled: $isChannelEnabled");
+    if (!isChannelEnabled) {
+      userAction = true;
+      await requestUserToEnableChannel(context, "timer-main");
+    }
+
+    isChannelEnabled = await channelHelper.isNotificationChannelEnabled("timer-support");
+    log.d("is channel timer-support enabled: $isChannelEnabled");
+    if (!isChannelEnabled) {
+      userAction = true;
+      await requestUserToEnableChannel(context, "timer-support");
+    }
+
+    // these checks are extra checks to see if for any reason any of the individual channels was disabled
+    // these extra checks are to see if we can enable the requested permissions
+    // note that in case of user tampering with permissions, these can't be restored at all
+    // but these permissions seem to be aesthetic so it should not affect us much
+    // we use the Light permission because we have to check at least one
+    // and this is the least intrusive that we can enable
+    // but if only checking Light to check for channel activation, then the above checks are enough
+    (requestedUserAction, allowedPermissions) = await requestUserPermissions(context,
+        channelKey: "timer-main",
+        permissionList: [NotificationPermission.Alert, NotificationPermission.Light]);
+    if (requestedUserAction) {
+      userAction = true;
+    }
+
+    // testing for Light is a way of simply testing whether the notification is enabled or not
+    // vibration and sound won't work on testing for a min importance notification channel
+    (requestedUserAction, allowedPermissions) = await requestUserPermissions(context,
+        channelKey: "timer-support", permissionList: [NotificationPermission.Light]);
+    if (requestedUserAction) {
+      userAction = true;
+    }
+
+    var backgroundPermissionOkay = await FlutterBackground.hasPermissions;
+    if (!backgroundPermissionOkay) {
+      requestBackgroundPermission(context);
+      userAction = true;
+    }
+
+    // if we asked user for stuff, consider the check to have failed, letting user press start again
+    return !userAction;
+  }
+
   void onTimerButtonPress() async {
     if (timerState == TimerState.stopped) {
       // start pressed
+      var permissionsOkay = await checkPermissions();
 
-      var userAction = false;
-
-      // request app permissions. this should be enough
-      var (requestedUserAction, allowedPermissions) =
-          await requestUserPermissions(context, channelKey: null, permissionList: [
-        // generic default permissions are alert, sound, vibration, light
-        NotificationPermission.Alert,
-        // we remove badge support
-        // NotificationPermission.Badge,
-        NotificationPermission.Sound,
-        NotificationPermission.Vibration,
-        NotificationPermission.Light,
-        // extra permissions
-        NotificationPermission.CriticalAlert,
-        NotificationPermission.FullScreenIntent,
-        NotificationPermission.PreciseAlarms,
-        // NotificationPermission.OverrideDnD,
-      ]);
-      if (requestedUserAction) {
-        userAction = true;
-      }
-
-      var channelHelper = ChannelHelper();
-
-      bool isChannelEnabled = await channelHelper.isNotificationChannelEnabled("timer-main");
-      log.d("is channel timer-main enabled: $isChannelEnabled");
-      if (!isChannelEnabled) {
-        userAction = true;
-        await requestUserToEnableChannel(context, "timer-main");
-      }
-
-      isChannelEnabled = await channelHelper.isNotificationChannelEnabled("timer-support");
-      log.d("is channel timer-support enabled: $isChannelEnabled");
-      if (!isChannelEnabled) {
-        userAction = true;
-        await requestUserToEnableChannel(context, "timer-support");
-      }
-
-      // these checks are extra checks to see if for any reason any of the individual channels was disabled
-      // these extra checks are to see if we can enable the requested permissions
-      // note that in case of user tampering with permissions, these can't be restored at all
-      // but these permissions seem to be aesthetic so it should not affect us much
-      // we use the Light permission because we have to check at least one
-      // and this is the least intrusive that we can enable
-      // but if only checking Light to check for channel activation, then the above checks are enough
-      (requestedUserAction, allowedPermissions) = await requestUserPermissions(context,
-          channelKey: "timer-main",
-          permissionList: [
-            NotificationPermission.Alert,
-            NotificationPermission.Light
-          ]);
-      if (requestedUserAction) {
-        userAction = true;
-      }
-
-      // testing for Light is a way of simply testing whether the notification is enabled or not
-      // vibration and sound won't work on testing for a min importance notification channel
-      (requestedUserAction, allowedPermissions) = await requestUserPermissions(context,
-          channelKey: "timer-support",
-          permissionList: [NotificationPermission.Light]);
-      if (requestedUserAction) {
-        userAction = true;
-      }
-
-      var backgroundPermissionOkay = await FlutterBackground.hasPermissions;
-      if (!backgroundPermissionOkay) {
-        requestBackgroundPermission(context);
-        userAction = true;
-      }
-
-      if (userAction) {
-        // if we asked user for stuff, don't start timer. let them press again
-        return;
-      }
-
-      // all permissions are good. start!
-
-      await initFlutterBackground();
-
-      timerDelaySeconds = int.parse(Settings.getValue<String>('delay-time') ?? '0');
-
-      onTimerStart();
-
-      if (timerDelaySeconds > 0) {
-        // start delay
-        timerState = TimerState.delaying;
-        // onTimerStart() will be called at the end of the elapsed time
+      if (permissionsOkay) {
+        // all permissions are good. start!
+        onTimerStart();
       } else {
-        // start meditation
-        onMeditationStart();
+        // user was prompted. let them press start button again
+        return;
       }
     } else {
       // stop pressed
@@ -340,27 +331,32 @@ class _TimerWidgetState extends State<TimerWidget> with SingleTickerProviderStat
     // probably no need to fix that
     AwesomeNotifications().dismiss(endingNotificationID);
 
-    // unconditionally force screen wakelock for the delay part
-    // this won't prevent manual turn off of display, but will save us from a short screen-off time
-    Wakelock.enable();
+    await initFlutterBackground();
+    if (Platform.isAndroid) {
+      bool backgroundSuccess = await FlutterBackground.enableBackgroundExecution();
+      log.i('enable background success: $backgroundSuccess');
+    }
 
     if (Settings.getValue<bool>('dnd') == true) {
       log.i('enabling dnd');
       await FlutterDnd.setInterruptionFilter(FlutterDnd.INTERRUPTION_FILTER_ALARMS);
     }
 
-    if (Platform.isAndroid) {
-      bool backgroundSuccess = await FlutterBackground.enableBackgroundExecution();
-      log.i('enable background success: $backgroundSuccess');
-    }
-
-    if (timerDelaySeconds >= 5) {
+    if (Settings.getValue<bool>('delay-enabled') ?? false) {
+      timerDelaySeconds = int.parse(Settings.getValue<String>('delay-time') ?? '5');
+      // unconditionally force screen wakelock for the delay part
+      // this won't prevent manual turn off of display, but will save us from a short screen-off time
+      // for the meditation part, wakelock can be user-set
+      Wakelock.enable();
       // cannot send notifications at intervals <5
-      // what happens with less than 5 seconds is unclear
-      // as long as the app stays in foreground it's going to work
-      // but if it's moved to background i'm not sure it will work
-      // consider limiting the minimum delay to 5 seconds
+      // what happens with less than 5 seconds is unclear, so we prevent that
       await scheduleStartingNotification(timerDelaySeconds);
+      // start delay
+      timerState = TimerState.delaying;
+      // onMeditationStart() will be called at the end of the elapsed time
+    } else {
+      // start meditation
+      onMeditationStart();
     }
 
     ticker.start();
@@ -368,22 +364,45 @@ class _TimerWidgetState extends State<TimerWidget> with SingleTickerProviderStat
 
   // pretty much just the visual/aural part and the switch of state
   void onMeditationStart() async {
-    startTime = DateTime.now();
+    var timerDuration = Duration(minutes: timerMinutes);
     if (timerMinutes == 0) {
       // this is the test mode
-      endTime = startTime.add(Duration(seconds: 10));
-    } else {
-      endTime = startTime.add(Duration(minutes: timerMinutes));
+      timerDuration += Duration(seconds: 10);
     }
-    // initial calculation
+
+    startTime = DateTime.now();
+    endTime = startTime.add(timerDuration);
+
+    // initial calculation. must happen before we start the ticker
+    // we need to calculate timeleft before switching to meditating state
+    // otherwise the first tickerupdate could run with the wrong timeleft
     timeLeft = timeLeftTo(endTime);
 
-    // we need to calculate timeleft before switching to meditating state
-    // otherwise the first timerupdate could run with the wrong timeleft
+    bool wakelockEnabled = await Wakelock.enabled;
+    if (Settings.getValue<bool>('screen-wakelock') == true) {
+      if (wakelockEnabled) {
+        // wakelock was already setup in onTimerStart
+        log.i('maintaining screen wakelock for meditation');
+      } else {
+        log.e('wakelock is not enabled but was supposed to be');
+      }
+    } else {
+      if (wakelockEnabled) {
+        log.i('disabling screen wakelock for meditation');
+        Wakelock.disable();
+      }
+    }
+
+    // start the meditation
+
     timerState = TimerState.meditating;
     setState(() {
       timerButtonText = "end";
     });
+
+    log.d(timerDuration.inSeconds);
+    // await scheduleEndingNotification(timeLeft.inSeconds);
+    await scheduleEndingNotification(timerDuration.inSeconds);
 
     intervalsEnabled = Settings.getValue<bool>('intervals-enabled') ?? false;
     if (intervalsEnabled) {
@@ -410,23 +429,6 @@ class _TimerWidgetState extends State<TimerWidget> with SingleTickerProviderStat
       }
     }
 
-    bool wakelockEnabled = await Wakelock.enabled;
-    if (Settings.getValue<bool>('screen-wakelock') == true) {
-      if (wakelockEnabled) {
-        // wakelock was already setup in onTimerStart
-        log.i('maintaining screen wakelock for meditation');
-      } else {
-        log.e('wakelock is not enabled but was supposed to be');
-      }
-    } else {
-      if (wakelockEnabled) {
-        log.i('disabling screen wakelock for meditation');
-        Wakelock.disable();
-      }
-    }
-
-    await scheduleEndingNotification(timeLeft.inSeconds);
-
     NAudioPlayer audioPlayer = GetIt.I.get<NAudioPlayer>();
     audioPlayer.playSound('start-sound');
 
@@ -447,8 +449,8 @@ class _TimerWidgetState extends State<TimerWidget> with SingleTickerProviderStat
     setState(() {
       // one last update so we know how much we were off on timeout
       if (timerState == TimerState.meditating) {
-        timeLeft = timeLeftTo(endTime);
         log.d("ending meditation at timeLeft: $timeLeft");
+        timeLeft = timeLeftTo(endTime, roundToZero: true);
       }
       timerButtonText = "begin";
     });
@@ -494,7 +496,7 @@ class _TimerWidgetState extends State<TimerWidget> with SingleTickerProviderStat
     }
   }
 
-  Future<void> scheduleEndingNotification(int interval) async {
+  Future<void> scheduleEndingNotification(int intervalSeconds) async {
     String localTimeZone = await AwesomeNotifications().getLocalTimeZoneIdentifier();
     AwesomeNotifications().createNotification(
       content: NotificationContent(
@@ -525,7 +527,10 @@ class _TimerWidgetState extends State<TimerWidget> with SingleTickerProviderStat
         fullScreenIntent: true,
       ),
       schedule: NotificationInterval(
-          interval: interval, timeZone: localTimeZone, allowWhileIdle: true, preciseAlarm: true),
+          interval: intervalSeconds,
+          timeZone: localTimeZone,
+          allowWhileIdle: true,
+          preciseAlarm: true),
       // actionButtons: [
       //   NotificationActionButton(
       //     key: 'dismiss',
@@ -536,7 +541,7 @@ class _TimerWidgetState extends State<TimerWidget> with SingleTickerProviderStat
     );
   }
 
-  Future<void> scheduleStartingNotification(int interval) async {
+  Future<void> scheduleStartingNotification(int intervalSeconds) async {
     String localTimeZone = await AwesomeNotifications().getLocalTimeZoneIdentifier();
     AwesomeNotifications().createNotification(
       content: NotificationContent(
@@ -555,11 +560,11 @@ class _TimerWidgetState extends State<TimerWidget> with SingleTickerProviderStat
         fullScreenIntent: false,
       ),
       schedule: NotificationInterval(
-          interval: interval, timeZone: localTimeZone, allowWhileIdle: true, preciseAlarm: true),
+          interval: intervalSeconds, timeZone: localTimeZone, allowWhileIdle: true, preciseAlarm: true),
     );
   }
 
-  Future<void> scheduleIntervalNotification(int interval, {int id = intervalNotificationID}) async {
+  Future<void> scheduleIntervalNotification(int intervalSeconds, {int id = intervalNotificationID}) async {
     String localTimeZone = await AwesomeNotifications().getLocalTimeZoneIdentifier();
     AwesomeNotifications().createNotification(
       content: NotificationContent(
@@ -578,7 +583,7 @@ class _TimerWidgetState extends State<TimerWidget> with SingleTickerProviderStat
         fullScreenIntent: false,
       ),
       schedule: NotificationInterval(
-          interval: interval, timeZone: localTimeZone, allowWhileIdle: true, preciseAlarm: true),
+          interval: intervalSeconds, timeZone: localTimeZone, allowWhileIdle: true, preciseAlarm: true),
     );
   }
 
@@ -739,7 +744,7 @@ class _TimerWidgetState extends State<TimerWidget> with SingleTickerProviderStat
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Text(formatDuration(timeLeft), style: Theme.of(context).textTheme.bodyText1),
+                  Text(timeLeftString(timeLeft), style: Theme.of(context).textTheme.bodyLarge),
                 ],
               )),
         SizedBox(
