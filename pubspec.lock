@@ -241,10 +241,11 @@ packages:
   flutter_settings_screens:
     dependency: "direct main"
     description:
-      name: flutter_settings_screens
-      sha256: b9e5ff87537fceeb67012560db6ef4bb0ff7d7a031e8184e1689538756ca99a0
-      url: "https://pub.dev"
-    source: hosted
+      path: "."
+      ref: "18f9377"
+      resolved-ref: "18f937739d7fb4c7ceb0d8b9877f20f0b5e9e6d8"
+      url: "https://github.com/GAM3RG33K/flutter_settings_screens.git"
+    source: git
     version: "0.3.4"
   flutter_test:
     dependency: "direct dev"

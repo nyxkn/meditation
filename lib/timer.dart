@@ -203,8 +203,20 @@ class _TimerWidgetState extends State<TimerWidget> with SingleTickerProviderStat
     }
   }
 
-  Future<bool> checkPermissions() async {
+  // returns true if permissions ok
+  Future<bool> checkIfPermissionsOkay() async {
     var userAction = false;
+
+    if (Settings.getValue<bool>('dnd') == true) {
+      bool hasAccess = await dndPlugin.isNotificationPolicyAccessGranted();
+      if (!hasAccess) {
+        await requestPermissionDND(context, dndPlugin, suggestDisable: true);
+        userAction = true;
+
+        // return early to let user disable dnd if needed
+        return !userAction;
+      }
+    }
 
     var backgroundPermissionOkay = await FlutterBackground.hasPermissions;
     if (!backgroundPermissionOkay) {
@@ -285,7 +297,7 @@ class _TimerWidgetState extends State<TimerWidget> with SingleTickerProviderStat
   void onTimerButtonPress() async {
     if (timerState == TimerState.stopped) {
       // start pressed
-      var permissionsOkay = await checkPermissions();
+      var permissionsOkay = await checkIfPermissionsOkay();
 
       if (permissionsOkay) {
         // all permissions are good. start!
@@ -340,14 +352,8 @@ class _TimerWidgetState extends State<TimerWidget> with SingleTickerProviderStat
 
     if (Settings.getValue<bool>('dnd') == true) {
       log.i('enabling dnd');
-      bool hasAccess = await dndPlugin.isNotificationPolicyAccessGranted();
-      if (!hasAccess) {
-        await dndPlugin.openNotificationPolicyAccessSettings();
-      }
+      // we already checked permissions
       await dndPlugin.setInterruptionFilter(InterruptionFilter.alarms);
-
-      // await FlutterDnd.setInterruptionFilter(
-      //     FlutterDnd.INTERRUPTION_FILTER_ALARMS);
     }
 
     if (Settings.getValue<bool>('delay-enabled') ?? false) {

@@ -3,8 +3,10 @@ import 'dart:io';
 import 'package:awesome_notifications/awesome_notifications.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_background/flutter_background.dart';
+import 'package:do_not_disturb/do_not_disturb.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_settings_screens/flutter_settings_screens.dart';
 
 import 'package:meditation/main.dart';
 import 'package:logger/logger.dart';
@@ -39,7 +41,6 @@ Function timeInputValidatorConstructor({minTimerTime = 1, maxTimerTime = 60}) {
 
   return validator;
 }
-
 
 // example of how you could extend Logger with a custom function that takes a tag parameter if you like
 // class NLogger extends Logger {
@@ -293,30 +294,73 @@ Future<(bool, List<NotificationPermission>)> requestNotificationPermissions(Buil
 
 Future<void> requestUserToEnableChannel(context, channelKey) async {
   await showDialog(
-  context: context,
-  builder: (context) => AlertDialog(
-    title: const Text('Enable Notification Channel'),
-    content: const Text(
-        "On the next screen, please enable the notification channel.\n\n"
-        "These notifications are required for reliably notifying you of when the meditation session ends.\n\n"),
-    actions: <Widget>[
-      TextButton(
-        style: TextButton.styleFrom(
-          textStyle: Theme.of(context).textTheme.labelLarge,
-        ),
-        child: const Text('OK'),
-        onPressed: () async {
-          var helper = ChannelHelper();
-          bool isChannelEnabled = await helper.isNotificationChannelEnabled(channelKey);
-          if (!isChannelEnabled) {
-            helper.openNotificationChannelSettings(channelKey);
-          }
+      context: context,
+      builder: (context) => AlertDialog(
+            title: const Text('Enable Notification Channel'),
+            content: const Text("On the next screen, please enable the notification channel.\n\n"
+                "These notifications are required for reliably notifying you of when the meditation session ends.\n\n"),
+            actions: <Widget>[
+              TextButton(
+                style: TextButton.styleFrom(
+                  textStyle: Theme.of(context).textTheme.labelLarge,
+                ),
+                child: const Text('OK'),
+                onPressed: () async {
+                  var helper = ChannelHelper();
+                  bool isChannelEnabled = await helper.isNotificationChannelEnabled(channelKey);
+                  if (!isChannelEnabled) {
+                    helper.openNotificationChannelSettings(channelKey);
+                  }
 
-          Navigator.of(context).pop();
-        },
+                  Navigator.of(context).pop();
+                },
+              ),
+            ],
+          ));
+}
+
+Future<void> requestPermissionDND(context, DoNotDisturbPlugin dndPlugin,
+    {bool suggestDisable = false}) async {
+  bool hasPermissions = await dndPlugin.isNotificationPolicyAccessGranted();
+  if (!hasPermissions) {
+    await showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (_) => AlertDialog(
+        title: Text("Permission required"),
+        // removing bottom padding from contentPadding. looks better.
+        // contentPadding defaults: https://api.flutter.dev/flutter/material/AlertDialog/contentPadding.html
+        contentPadding: EdgeInsets.fromLTRB(23, 20, 24, 0),
+        content: SingleChildScrollView(
+          child: Column(
+            children: [
+              suggestDisable
+                  ? Text(
+                      "You enabled 'Do not disturb' mode in the app settings, but this app no longer has the required permission. Press OK to grant Do Not Disturb access, or Cancel to disable the feature.\n")
+                  : Text(
+                      "You'll now be taken to your system settings where you can grant this app the permission to access Do Not Disturb settings.\n"),
+            ],
+          ),
+        ),
+        actions: [
+          if (suggestDisable)
+            TextButton(
+                onPressed: () async {
+                  Navigator.of(context).pop();
+                  await Settings.setValue<bool>('dnd', false);
+                },
+                child: Text("Cancel")),
+          TextButton(
+            child: Text("OK"),
+            onPressed: () async {
+              Navigator.of(context).pop();
+              await dndPlugin.openNotificationPolicyAccessSettings();
+            },
+          ),
+        ],
       ),
-    ],
-  ));
+    );
+  }
 }
 
 class ChannelHelper {
@@ -324,7 +368,8 @@ class ChannelHelper {
 
   Future<bool> isNotificationChannelEnabled(String channelId) async {
     try {
-      final bool isEnabled = await platform.invokeMethod('isChannelEnabled', {'channelId': channelId});
+      final bool isEnabled =
+          await platform.invokeMethod('isChannelEnabled', {'channelId': channelId});
       return isEnabled;
     } on PlatformException catch (e) {
       print("Error checking notification channel status: ${e.message}");
