@@ -34,17 +34,18 @@ android {
     def targetSdk = 34
 
     namespace "com.nyxkn.meditation"
-//    compileSdk flutter.compileSdkVersion
     compileSdkVersion targetSdk
-    ndkVersion flutter.ndkVersion
+    ndkVersion "25.1.8937393"
 
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_8
-        targetCompatibility JavaVersion.VERSION_1_8
+//        sourceCompatibility JavaVersion.VERSION_1_8
+//        targetCompatibility JavaVersion.VERSION_1_8
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
     }
 
     kotlinOptions {
-        jvmTarget = '1.8'
+        jvmTarget = 17
     }
 
     sourceSets {
@@ -58,9 +59,7 @@ android {
         // rather than using the variable minSdk. we can't even use the word min Sdk Version in comments
         // because it just naively looks for any line containing the string. even if it's a comment!
         // https://github.com/fluttercommunity/flutter_launcher_icons/issues/324
-//        minSdkVersion flutter.minSdkVersion
-        minSdkVersion 21
-//        targetSdkVersion flutter.targetSdkVersion
+        minSdkVersion 23 // lollipop 6.0, 98.8%
         targetSdkVersion targetSdk
         versionCode flutterVersionCode.toInteger()
         versionName flutterVersionName

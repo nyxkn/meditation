@@ -2,7 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
-import 'package:flutter_dnd/flutter_dnd.dart';
+import 'package:do_not_disturb/do_not_disturb.dart';
 import 'package:flutter_settings_screens/flutter_settings_screens.dart';
 import 'package:get_it/get_it.dart';
 import 'package:package_info_plus/package_info_plus.dart';
@@ -41,8 +41,11 @@ class _SettingsWidgetState extends State<SettingsWidget> {
       soundsValues[i] = audioFiles.values.elementAt(i);
     }
 
+    final dndPlugin = DoNotDisturbPlugin();
+
     final GetIt getIt = GetIt.instance;
     final NAudioPlayer audioPlayer = getIt.get<NAudioPlayer>();
+
     double lastVolumeValue = -1;
     int lastStartSoundValue = -1;
     int lastEndSoundValue = -1;
@@ -88,9 +91,18 @@ class _SettingsWidgetState extends State<SettingsWidget> {
                 subtitle: "Enable 'Do Not Disturb' mode while meditating",
                 onChange: (value) async {
                   if (value == true) {
-                    if (!(await FlutterDnd.isNotificationPolicyAccessGranted ?? false)) {
-                      askPermissionDND();
+                    // Set DND mode (requires permission)
+                    if (await dndPlugin.isNotificationPolicyAccessGranted()) {
+                      // await dndPlugin.setInterruptionFilter(InterruptionFilter.priority);
+                    } else {
+                      // Guide user to grant permission
+                      await dndPlugin.openNotificationPolicyAccessSettings();
+                      // Inform user to grant permission and return to the app
                     }
+                    // if (!(await FlutterDnd.isNotificationPolicyAccessGranted ??
+                    //     false)) {
+                    //   askPermissionDND();
+                    // }
                   }
                 },
               ),
@@ -123,8 +135,7 @@ class _SettingsWidgetState extends State<SettingsWidget> {
                               ],
                               borderColor: primaryColor,
                               errorColor: secondaryColor,
-                              helperText:
-                                  'Delay time in seconds, between 5 and 60.',
+                              helperText: 'Delay time in seconds, between 5 and 60.',
                             ),
                           ],
                         ))
@@ -245,45 +256,47 @@ class _SettingsWidgetState extends State<SettingsWidget> {
     );
   }
 
-  Future<void> askPermissionDND() async {
-    bool hasPermissions = await FlutterDnd.isNotificationPolicyAccessGranted ?? false;
-    if (!hasPermissions) {
-      showDialog(
-        context: context,
-        barrierDismissible: false,
-        builder: (_) => AlertDialog(
-          title: Text("Permission required"),
-          // removing bottom padding from contentPadding. looks better.
-          // contentPadding defaults: https://api.flutter.dev/flutter/material/AlertDialog/contentPadding.html
-          contentPadding: EdgeInsets.fromLTRB(24, 20, 24, 0),
-          content: SingleChildScrollView(
-            child: Column(
-              children: [
-                Text(
-                    "You'll now be taken to your system settings where you can grant this app the permission to access Do Not Disturb settings.\n"),
-              ],
-            ),
-          ),
-          actions: [
-            TextButton(
-              child: Text("OK"),
-              onPressed: () async {
-                Navigator.of(context).pop();
-                // this function simply opens the settings, but the following code runs immediately in parallel
-                // so we can't run code after we return to the app from changing the settings
-                FlutterDnd.gotoPolicySettings();
-                // this runs while we're in the settings screen
-                // so our only option is to set false regardless and have the user re-check the setting
-                await Settings.setValue<bool>('dnd', false);
-                Navigator.pushReplacement(
-                  context,
-                  MaterialPageRoute(builder: (context) => const SettingsWidget()),
-                );
-              },
-            ),
-          ],
-        ),
-      );
-    }
-  }
+// Future<void> askPermissionDND() async {
+//   bool hasPermissions =
+//       await FlutterDnd.isNotificationPolicyAccessGranted ?? false;
+//   if (!hasPermissions) {
+//     showDialog(
+//       context: context,
+//       barrierDismissible: false,
+//       builder: (_) => AlertDialog(
+//         title: Text("Permission required"),
+//         // removing bottom padding from contentPadding. looks better.
+//         // contentPadding defaults: https://api.flutter.dev/flutter/material/AlertDialog/contentPadding.html
+//         contentPadding: EdgeInsets.fromLTRB(24, 20, 24, 0),
+//         content: SingleChildScrollView(
+//           child: Column(
+//             children: [
+//               Text(
+//                   "You'll now be taken to your system settings where you can grant this app the permission to access Do Not Disturb settings.\n"),
+//             ],
+//           ),
+//         ),
+//         actions: [
+//           TextButton(
+//             child: Text("OK"),
+//             onPressed: () async {
+//               Navigator.of(context).pop();
+//               // this function simply opens the settings, but the following code runs immediately in parallel
+//               // so we can't run code after we return to the app from changing the settings
+//               FlutterDnd.gotoPolicySettings();
+//               // this runs while we're in the settings screen
+//               // so our only option is to set false regardless and have the user re-check the setting
+//               await Settings.setValue<bool>('dnd', false);
+//               Navigator.pushReplacement(
+//                 context,
+//                 MaterialPageRoute(
+//                     builder: (context) => const SettingsWidget()),
+//               );
+//             },
+//           ),
+//         ],
+//       ),
+//     );
+//   }
+// }
 }

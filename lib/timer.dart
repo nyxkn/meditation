@@ -8,12 +8,12 @@ import 'package:flutter/scheduler.dart' hide Priority;
 import 'package:awesome_notifications/awesome_notifications.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_background/flutter_background.dart';
-import 'package:flutter_dnd/flutter_dnd.dart';
+import 'package:do_not_disturb/do_not_disturb.dart';
 import 'package:flutter_settings_screens/flutter_settings_screens.dart';
 import 'package:get_it/get_it.dart';
 import 'package:meditation/main.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:wakelock/wakelock.dart';
+import 'package:wakelock_plus/wakelock_plus.dart';
 
 import 'package:meditation/audioplayer.dart';
 import 'package:meditation/utils.dart';
@@ -25,7 +25,6 @@ const int startingNotificationID = 101;
 // intervalNotification is also going to use up the next few numbers
 // reserve 200-299 for it
 const int intervalNotificationID = 200;
-
 
 class NotificationController {
   /// Use this method to detect when a new notification or a schedule is created
@@ -59,6 +58,8 @@ class TimerWidget extends StatefulWidget {
 
 class _TimerWidgetState extends State<TimerWidget> with SingleTickerProviderStateMixin {
   final List<int> intervalNotificationIDs = [];
+
+  final dndPlugin = DoNotDisturbPlugin();
 
   late Ticker ticker;
 
@@ -120,7 +121,8 @@ class _TimerWidgetState extends State<TimerWidget> with SingleTickerProviderStat
 
     if (notificationID == endingNotificationID) {
       if (timerState == TimerState.meditating) {
-        log.i("ending timer through displayedStream notification callback. timeleft: ${timeLeft.inMilliseconds} ms");
+        log.i(
+            "ending timer through displayedStream notification callback. timeleft: ${timeLeft.inMilliseconds} ms");
         onTimerEnd();
       }
     }
@@ -338,7 +340,14 @@ class _TimerWidgetState extends State<TimerWidget> with SingleTickerProviderStat
 
     if (Settings.getValue<bool>('dnd') == true) {
       log.i('enabling dnd');
-      await FlutterDnd.setInterruptionFilter(FlutterDnd.INTERRUPTION_FILTER_ALARMS);
+      bool hasAccess = await dndPlugin.isNotificationPolicyAccessGranted();
+      if (!hasAccess) {
+        await dndPlugin.openNotificationPolicyAccessSettings();
+      }
+      await dndPlugin.setInterruptionFilter(InterruptionFilter.alarms);
+
+      // await FlutterDnd.setInterruptionFilter(
+      //     FlutterDnd.INTERRUPTION_FILTER_ALARMS);
     }
 
     if (Settings.getValue<bool>('delay-enabled') ?? false) {
@@ -346,7 +355,7 @@ class _TimerWidgetState extends State<TimerWidget> with SingleTickerProviderStat
       // unconditionally force screen wakelock for the delay part
       // this won't prevent manual turn off of display, but will save us from a short screen-off time
       // for the meditation part, wakelock can be user-set
-      Wakelock.enable();
+      WakelockPlus.enable();
       // cannot send notifications at intervals <5
       // what happens with less than 5 seconds is unclear, so we prevent that
       await scheduleStartingNotification(timerDelaySeconds);
@@ -377,7 +386,7 @@ class _TimerWidgetState extends State<TimerWidget> with SingleTickerProviderStat
     // otherwise the first tickerupdate could run with the wrong timeleft
     timeLeft = timeLeftTo(endTime);
 
-    bool wakelockEnabled = await Wakelock.enabled;
+    bool wakelockEnabled = await WakelockPlus.enabled;
     if (Settings.getValue<bool>('screen-wakelock') == true) {
       if (wakelockEnabled) {
         // wakelock was already setup in onTimerStart
@@ -388,7 +397,7 @@ class _TimerWidgetState extends State<TimerWidget> with SingleTickerProviderStat
     } else {
       if (wakelockEnabled) {
         log.i('disabling screen wakelock for meditation');
-        Wakelock.disable();
+        WakelockPlus.disable();
       }
     }
 
@@ -458,11 +467,13 @@ class _TimerWidgetState extends State<TimerWidget> with SingleTickerProviderStat
     // removing 'meditation started' snackbar in case it's still showing
     ScaffoldMessenger.of(context).removeCurrentSnackBar();
 
-    Wakelock.disable();
+    WakelockPlus.disable();
 
     if (Settings.getValue<bool>('dnd') == true) {
       log.i('disabling dnd');
-      await FlutterDnd.setInterruptionFilter(FlutterDnd.INTERRUPTION_FILTER_ALL);
+      await dndPlugin.setInterruptionFilter(InterruptionFilter.all);
+      // await FlutterDnd.setInterruptionFilter(
+      //     FlutterDnd.INTERRUPTION_FILTER_ALL);
     }
 
     if (Platform.isAndroid) {
@@ -557,11 +568,15 @@ class _TimerWidgetState extends State<TimerWidget> with SingleTickerProviderStat
         fullScreenIntent: false,
       ),
       schedule: NotificationInterval(
-          interval: intervalSeconds, timeZone: localTimeZone, allowWhileIdle: true, preciseAlarm: true),
+          interval: intervalSeconds,
+          timeZone: localTimeZone,
+          allowWhileIdle: true,
+          preciseAlarm: true),
     );
   }
 
-  Future<void> scheduleIntervalNotification(int intervalSeconds, {int id = intervalNotificationID}) async {
+  Future<void> scheduleIntervalNotification(int intervalSeconds,
+      {int id = intervalNotificationID}) async {
     String localTimeZone = await AwesomeNotifications().getLocalTimeZoneIdentifier();
     AwesomeNotifications().createNotification(
       content: NotificationContent(
@@ -580,7 +595,10 @@ class _TimerWidgetState extends State<TimerWidget> with SingleTickerProviderStat
         fullScreenIntent: false,
       ),
       schedule: NotificationInterval(
-          interval: intervalSeconds, timeZone: localTimeZone, allowWhileIdle: true, preciseAlarm: true),
+          interval: intervalSeconds,
+          timeZone: localTimeZone,
+          allowWhileIdle: true,
+          preciseAlarm: true),
     );
   }
 

@@ -18,7 +18,8 @@ publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 version: 1.4.2+16
 
 environment:
-  sdk: '>=3.3.2 <4.0.0'
+  sdk: ^3.5.3
+
 
 # Dependencies specify other packages that your package needs in order to work.
 # To automatically upgrade your package dependencies to the latest versions
@@ -34,16 +35,16 @@ dependencies:
   audioplayers: ^6.0.0
   awesome_notifications: ^0.9.3+1 # receive_boot_completed, vibrate
   flutter_background: ^1.1.0 # foreground_service, wake_lock
-  flutter_dnd: ^0.1.4+1
-#  flutter_foreground_task: ^3.5.5
+  do_not_disturb: ^1.0.1
+  #  flutter_foreground_task: ^3.5.5
   flutter_settings_screens: ^0.3.3-null-safety
-  get_it: ^7.2.0
+  get_it: ^8.0.0
   logger: ^2.1.0
-#  permission_handler: ^8.3.0
+  #  permission_handler: ^8.3.0
   shared_preferences: ^2.0.12
   volume_controller: ^2.0.3
-  wakelock: ^0.6.1+1
-  package_info_plus: ^3.1.2
+  wakelock_plus: ^1.2.8
+  package_info_plus: ^8.0.3
   event_bus: ^2.0.0
   app_settings: ^5.1.1
 
@@ -58,14 +59,15 @@ dev_dependencies:
   flutter_test:
     sdk: flutter
 
-  flutter_launcher_icons: ^0.13.1
+  flutter_launcher_icons: ^0.14.1
 
   # The "flutter_lints" package below contains a set of recommended lints to
   # encourage good coding practices. The lint set provided by the package is
   # activated in the `analysis_options.yaml` file located at the root of your
   # package. See that file for information about deactivating specific lint
   # rules and activating additional ones.
-  flutter_lints: ^3.0.1
+  flutter_lints: ^5.0.0
+
 
 # to generate icons:
 # flutter pub run flutter_launcher_icons:main
@@ -95,8 +97,8 @@ flutter:
 
   assets:
     - assets/
-#    - android/app/src/main/res/mipmap-xxxhdpi/
-#    - android/app/src/main/res/drawable-xxxhdpi/
+  #    - android/app/src/main/res/mipmap-xxxhdpi/
+  #    - android/app/src/main/res/drawable-xxxhdpi/
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware.

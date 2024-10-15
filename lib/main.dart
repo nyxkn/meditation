@@ -91,7 +91,7 @@ Future<void> initFlutterBackground() async {
   const androidConfig = FlutterBackgroundAndroidConfig(
     notificationTitle: "Meditation in progress",
     notificationText: "Foreground service notification to keep the app running",
-    notificationImportance: AndroidNotificationImportance.Default,
+    notificationImportance: AndroidNotificationImportance.normal,
     notificationIcon: AndroidResource(
         name: 'ic_notification', defType: 'drawable'), // Default is ic_launcher from folder mipmap
   );
@@ -266,11 +266,13 @@ class Home extends StatelessWidget {
       body: Center(
         child: TimerWidget(),
       ),
-      floatingActionButton: kReleaseMode ? null : FloatingActionButton(
-        onPressed: () {
-          AppSettings.openAppSettings(type: AppSettingsType.settings);
-        },
-      ),
+      floatingActionButton: kReleaseMode
+          ? null
+          : FloatingActionButton(
+              onPressed: () {
+                AppSettings.openAppSettings(type: AppSettingsType.settings);
+              },
+            ),
     );
   }
 
