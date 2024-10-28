@@ -173,32 +173,30 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    var blackTheme = false;
+    var bgColor = blackTheme ? Colors.black : backgroundColor; // quick and dirty overshadowing
+
     return MaterialApp(
       title: 'Meditation Timer',
       themeMode: ThemeMode.dark,
       theme: ThemeData(
-          colorScheme:
-              ColorScheme.fromSeed(seedColor: primaryColor!, brightness: Brightness.dark).copyWith(
-                  primary: primaryColor,
-                  // background: Colors.grey[850]!,
-                  background: Colors.black,
-                  surface: Colors.black,
-                  secondary: primaryColor),
-          scaffoldBackgroundColor: darkGray,
+          colorScheme: ColorScheme.fromSeed(seedColor: primaryColor!, brightness: Brightness.dark)
+              .copyWith(primary: primaryColor, surface: Colors.black, secondary: primaryColor),
+          scaffoldBackgroundColor: bgColor,
           typography: Typography.material2021(),
-          canvasColor: Colors.grey[900],
-          dialogBackgroundColor: Colors.grey[900],
+          canvasColor: blackTheme ? Colors.black : surfaceColor,
+          dialogBackgroundColor: surfaceColor,
           snackBarTheme: SnackBarThemeData(
-            backgroundColor: Colors.grey[900],
+            backgroundColor: surfaceColor,
             contentTextStyle: TextStyle(color: Colors.white),
           ),
           progressIndicatorTheme: ProgressIndicatorThemeData(
             // circularTrackColor: Colors.black,
-            circularTrackColor: Colors.grey[900],
+            circularTrackColor: surfaceColor,
           ),
           textButtonTheme: TextButtonThemeData(
             style: TextButton.styleFrom(
-              backgroundColor: darkGray,
+              backgroundColor: bgColor,
               foregroundColor: Colors.white,
             ),
           ),
