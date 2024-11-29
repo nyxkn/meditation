@@ -78,6 +78,7 @@ flutter_icons:
   image_path_ios: "assets/icon/icon-material-192px.png"
   adaptive_icon_background: "#fafafa"
   adaptive_icon_foreground: "assets/icon/icon-adaptive-foreground-432px.png"
+  adaptive_icon_monochrome: "assets/icon/icon-adaptive-foreground-432px.png"
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
