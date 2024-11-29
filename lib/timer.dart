@@ -518,7 +518,7 @@ class _TimerWidgetState extends State<TimerWidget> with SingleTickerProviderStat
         channelKey: 'timer-main',
         groupKey: 'timer-end',
         title: 'Meditation ended',
-        body: 'Tap to return to app',
+        body: 'Swipe to dismiss',
         icon: 'resource://drawable/ic_notification',
         largeIcon: 'resource://mipmap/ic_launcher',
         // Alarm and Event seem to both show up in dnd mode (this is what we want)
@@ -531,14 +531,19 @@ class _TimerWidgetState extends State<TimerWidget> with SingleTickerProviderStat
         notificationLayout: NotificationLayout.BigPicture,
         // criticalAlert: play sounds even when in dnd. likely only useful for ios
         criticalAlert: true,
-        // autoDismissible: gets dismissed on tap
+        // autoDismissible: gets dismissed on tap (meaning even when it opens the app, it dismisses itself)
+        // if false, tapping will open the app but the notification stays
         autoDismissible: true,
         // wakeUpScreen: wake up screen even when locked
+        // shows app in fullscreen even from locked (but only if phone was locked with app in foreground)
         wakeUpScreen: true,
-        // fullScreenIntent: show notification in fullscreen even from locked
-        // fullScreenIntent keeps showing the notification popup permanently until user dismisses it
-        // so we will dismiss this automatically after a few seconds
-        fullScreenIntent: true,
+        // fullScreenIntent keeps showing the notification popup in front permanently until user dismisses it
+        // for some reason fullscreenintent makes the notification not appear
+        fullScreenIntent: false,
+        // dismiss this automatically after a few seconds
+        timeoutAfter: Duration(seconds: 10),
+        // don't open the app on tap
+        actionType: ActionType.DisabledAction,
       ),
       schedule: NotificationInterval(
           interval: intervalSeconds,
