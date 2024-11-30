@@ -12,18 +12,6 @@
     <!-- flutter_background -->
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_SYSTEM_EXEMPTED" />
 
-    <!-- remove permissions that are otherwise merged from awesome_notifications manifest -->
-    <uses-permission
-        android:name="android.permission.RECEIVE_BOOT_COMPLETED"
-        tools:node="remove" />
-    <uses-permission
-        android:name="android.permission.VIBRATE"
-        tools:node="remove" />
-    <!-- remove permissions that are otherwise merged from androidx.work manifest -->
-    <uses-permission
-        android:name="android.permission.ACCESS_NETWORK_STATE"
-        tools:node="remove" />
-
     <application
         android:label="Meditation"
         android:name="${applicationName}"

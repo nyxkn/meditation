@@ -76,6 +76,7 @@ android {
     buildTypes {
         release {
             signingConfig signingConfigs.release
+            shrinkResources = false
             ndk {
                 debugSymbolLevel 'FULL'
             }
@@ -100,9 +101,9 @@ dependencies {
 }
 
 configurations.all {
-    // this removes all permissions related to badges
+    // this removes the module from the build (and all the permissions related to badges)
+    // see also corresponding proguard rules
     exclude group: 'me.leolin', module: 'ShortcutBadger'
-//    implementation "me.leolin:ShortcutBadger:1.1.22@aar"
 }
 
 

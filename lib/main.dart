@@ -40,8 +40,8 @@ Future<void> initNotifications() async {
   // initialize and set a default channel
   bool success = await AwesomeNotifications().initialize(
     // set the icon to null if you want to use the default app icon
-    //   'resource://drawable/res_app_icon',
-    null,
+    // null,
+    'resource://drawable/ic_notification',
     [
       NotificationChannel(
         channelKey: 'timer-main',

@@ -519,7 +519,7 @@ class _TimerWidgetState extends State<TimerWidget> with SingleTickerProviderStat
         groupKey: 'timer-end',
         title: 'Meditation ended',
         body: 'Swipe to dismiss',
-        icon: 'resource://drawable/ic_notification',
+        // icon: 'resource://drawable/ic_notification',
         largeIcon: 'resource://mipmap/ic_launcher',
         // Alarm and Event seem to both show up in dnd mode (this is what we want)
         // Alarm also makes the notification undismissable with swiping and requires interaction
@@ -546,7 +546,7 @@ class _TimerWidgetState extends State<TimerWidget> with SingleTickerProviderStat
         actionType: ActionType.DisabledAction,
       ),
       schedule: NotificationInterval(
-          interval: intervalSeconds,
+          interval: Duration(seconds: intervalSeconds),
           timeZone: localTimeZone,
           allowWhileIdle: true,
           preciseAlarm: true),
@@ -569,7 +569,7 @@ class _TimerWidgetState extends State<TimerWidget> with SingleTickerProviderStat
         groupKey: 'timer-start',
         title: 'Meditation started',
         body: 'Tap to return to app',
-        icon: 'resource://drawable/ic_notification',
+        // icon: 'resource://drawable/ic_notification',
         largeIcon: 'resource://mipmap/ic_launcher',
         category: NotificationCategory.Event,
         notificationLayout: NotificationLayout.BigPicture,
@@ -579,7 +579,7 @@ class _TimerWidgetState extends State<TimerWidget> with SingleTickerProviderStat
         fullScreenIntent: false,
       ),
       schedule: NotificationInterval(
-          interval: intervalSeconds,
+          interval: Duration(seconds: intervalSeconds),
           timeZone: localTimeZone,
           allowWhileIdle: true,
           preciseAlarm: true),
@@ -606,7 +606,7 @@ class _TimerWidgetState extends State<TimerWidget> with SingleTickerProviderStat
         fullScreenIntent: false,
       ),
       schedule: NotificationInterval(
-          interval: intervalSeconds,
+          interval: Duration(seconds: intervalSeconds),
           timeZone: localTimeZone,
           allowWhileIdle: true,
           preciseAlarm: true),
