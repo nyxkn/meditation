@@ -1,0 +1,4 @@
++ Upgraded to latest Flutter 3.24.3
++ Added monochrome icon for themed icons
++ Cleaner dismissal of end notification
++ Improved DND permissions request

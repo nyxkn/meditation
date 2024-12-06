@@ -33,9 +33,13 @@ Or download the APK directly from GitHub:
 
 ## Screenshots
 
-<a href="media/screenshot-timer.png?raw=true"><img width=180 src="media/screenshots/main.png"></a>
+<a href="media/screenshots/main.png?raw=true"><img width=180 src="media/screenshots/main.png"></a>
 &nbsp;
-<a href="media/screenshot-settings.png?raw=true"><img width=180 src="media/screenshots/settings.png"></a>
+<a href="media/screenshots/time-selection.png?raw=true"><img width=180 src="media/screenshots/time-selection.png"></a>
+&nbsp;
+<a href="media/screenshots/settings.png?raw=true"><img width=180 src="media/screenshots/settings.png"></a>
+&nbsp;
+<a href="media/screenshots/settings-2.png?raw=true"><img width=180 src="media/screenshots/settings-2.png"></a>
 
 ## Description
 

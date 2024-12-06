@@ -540,8 +540,8 @@ class _TimerWidgetState extends State<TimerWidget> with SingleTickerProviderStat
         // fullScreenIntent keeps showing the notification popup in front permanently until user dismisses it
         // for some reason fullscreenintent makes the notification not appear
         fullScreenIntent: false,
-        // dismiss this automatically after a few seconds
-        timeoutAfter: Duration(seconds: 10),
+        // dismiss this automatically after a few seconds. or maybe better not? i quite like seeing the confirmation of end
+        // timeoutAfter: Duration(seconds: 10),
         // don't open the app on tap
         actionType: ActionType.DisabledAction,
       ),
